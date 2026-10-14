@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>專屬學員課程規劃書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FA; --panel:#fff; --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8; --line:#E2E8F0;
+  --accent:#1592D6;
+  --L1:#6CC9C6; --L2:#8FAEEA; --L3:#B69CF2; --L4:#E39A35;
+  --font:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+
+/* ---------- 編輯介面 ---------- */
+.app{display:grid;grid-template-columns:440px 1fr;height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:20px 20px 60px}
+.side h1{font-size:19px;margin:0 0 2px;font-weight:900}
+.side .sub{color:var(--ink2);font-size:12.5px;margin:0 0 16px}
+.sec-h{font-size:12px;letter-spacing:.12em;color:var(--ink3);font-weight:700;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field label{display:block;font-size:12px;color:var(--ink2);margin-bottom:3px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff}
+.field textarea{resize:vertical;min-height:52px}
+.field.full{grid-column:1/-1}
+.progs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prog{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;background:#fff;text-align:left;position:relative;overflow:hidden}
+.prog b{display:block;font-size:13.5px}
+.prog span{font-size:11px;color:var(--ink3)}
+.prog::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.prog.on{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 18%,transparent)}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12.5px}
+.btn:hover{border-color:var(--ink3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.lv{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.lv.active{box-shadow:0 0 0 2px var(--lc)}
+.lv-h{display:flex;align-items:center;gap:8px;padding:9px 11px;cursor:pointer;background:color-mix(in srgb,var(--lc) 14%,#fff)}
+.lv-h .no{font-size:11px;font-weight:900;color:#fff;background:var(--lc);border-radius:6px;padding:2px 6px}
+.lv-h .nm{font-weight:700;flex:1}
+.lv-h .ct{font-size:12px;color:var(--ink2)}
+.lv-h .all{font-size:11.5px;border:1px solid color-mix(in srgb,var(--lc) 60%,#fff);background:#fff;border-radius:6px;padding:2px 7px;cursor:pointer}
+.lv-d{padding:8px 12px 2px;font-size:12px;color:var(--ink2);line-height:1.6}
+.lv-d .ex{background:#F1F5F9;border-radius:8px;padding:6px 9px;margin:6px 0}
+.lv-b{padding:4px 6px 8px}
+.lv.collapsed .lv-b,.lv.collapsed .lv-d{display:none}
+.ci{display:flex;gap:9px;align-items:flex-start;padding:7px 6px;border-radius:8px;cursor:pointer}
+.ci:hover{background:#F8FAFC}
+.ci input{margin-top:3px;accent-color:var(--lc);width:16px;height:16px;flex:none}
+.ci .t{font-weight:600;font-size:13.5px}
+.ci .s{font-size:11.5px;color:var(--ink3);line-height:1.45;margin-top:1px}
+.tg{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px;background:#FEF3C7;color:#B45309}
+.tg.cert{background:#DCFCE7;color:#15803D}
+.tg.res{background:#FCE7F3;color:#BE185D}
+
+.main{overflow:auto;display:flex;flex-direction:column;align-items:center;padding:18px 24px 40px}
+.bar{position:sticky;top:0;z-index:5;width:100%;max-width:900px;display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);padding:6px 0 12px}
+.bar .info{flex:1;font-size:12.5px;color:var(--ink2)}
+.bar .warn{color:#B91C1C;font-weight:700}
+.bar label{font-size:12.5px;color:var(--ink2);display:flex;gap:4px;align-items:center}
+.stage{position:relative}
+.stage .sheet{transform-origin:top left;box-shadow:0 10px 40px rgba(15,23,42,.18)}
+
+/* ---------- A4 DM ---------- */
+.sheet{--k:1;width:210mm;height:297mm;background:#fff;color:#0F172A;overflow:hidden;display:flex;flex-direction:column;
+  font-family:var(--font);-webkit-print-color-adjust:exact;print-color-adjust:exact;position:relative}
+.hd{position:relative;color:#fff;padding:9mm 11mm 7mm;background:linear-gradient(120deg,var(--pc) 0%,color-mix(in srgb,var(--pc) 70%,#0F172A) 100%);overflow:hidden}
+.hd::after{content:"";position:absolute;right:-30mm;top:-30mm;width:90mm;height:90mm;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--pc2) 55%,transparent),transparent 70%)}
+.hd .k{font-size:8.5pt;letter-spacing:.28em;opacity:.85;font-weight:700}
+.hd .who{font-size:21pt;font-weight:900;margin:2mm 0 1mm;line-height:1.2;position:relative;z-index:1}
+.hd .who em{font-style:normal;border-bottom:2px solid var(--pc2)}
+.hd .pn{font-size:12.5pt;font-weight:700;position:relative;z-index:1}
+.hd .pn small{font-weight:400;opacity:.8;font-size:8.5pt;margin-left:2mm;letter-spacing:.04em}
+.hd .sl{font-size:9pt;opacity:.9;margin-top:1mm;position:relative;z-index:1}
+.hd .meta{position:absolute;right:11mm;top:9mm;text-align:right;font-size:8.5pt;line-height:1.6;z-index:1}
+.hd .meta b{display:block;font-size:9pt}
+.goal{margin-top:2.5mm;display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:3mm;padding:1mm 3mm;font-size:8.5pt;position:relative;z-index:1}
+
+.ov{display:grid;grid-template-columns:64mm 1fr;gap:5mm;padding:4mm 11mm 1mm;align-items:center}
+.ov svg{width:100%;height:auto;display:block}
+.ov .cap{font-size:7.5pt;color:#64748B;text-align:center;margin-top:1mm}
+.path .ph{font-size:8pt;letter-spacing:.2em;color:#94A3B8;font-weight:700;margin-bottom:1.5mm}
+.prow{display:grid;grid-template-columns:16mm 1fr;gap:2.5mm;padding:1.6mm 0;border-bottom:1px dashed #E2E8F0}
+.prow:last-child{border-bottom:0}
+.prow .lb{font-size:7pt;font-weight:900;color:#fff;background:var(--lc);border-radius:1.5mm;text-align:center;padding:.8mm 0;align-self:start;line-height:1.3}
+.prow .lb span{display:block;font-size:8.5pt}
+.prow.off{opacity:.42}
+.prow.off .lb{background:#CBD5E1}
+.prow .tt{font-size:9pt;font-weight:700}
+.prow .dd{font-size:7.6pt;color:#475569;line-height:1.5}
+.prow .ex{font-size:7.4pt;color:#334155;background:#F1F5F9;border-radius:1.5mm;padding:.8mm 2mm;margin-top:.8mm}
+
+.cs{flex:1;min-height:0;overflow:hidden;padding:1mm 11mm 0}
+.cs-h{display:flex;align-items:baseline;gap:3mm;margin:1.5mm 0 1.5mm}
+.cs-h b{font-size:11pt;font-weight:900}
+.cs-h span{font-size:8pt;color:#64748B}
+.grp{margin-bottom:calc(2mm*var(--k))}
+.grp-h{display:flex;align-items:center;gap:2mm;font-size:calc(8pt*var(--k));font-weight:900;color:color-mix(in srgb,var(--lc) 70%,#0F172A);margin-bottom:calc(1.2mm*var(--k))}
+.grp-h i{font-style:normal;background:var(--lc);color:#fff;border-radius:1.2mm;padding:.2mm 1.5mm;font-size:calc(7pt*var(--k))}
+.grp-h::after{content:"";flex:1;height:.3mm;background:color-mix(in srgb,var(--lc) 40%,#fff)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:calc(2mm*var(--k)) 3mm}
+.card{border:.3mm solid #E2E8F0;border-left:1.2mm solid var(--lc);border-radius:1.6mm;padding:calc(1.6mm*var(--k)) 2.4mm;break-inside:avoid}
+.card .n{font-size:calc(9.2pt*var(--k));font-weight:900;line-height:1.3}
+.card .n .tg{font-size:calc(6.4pt*var(--k));vertical-align:1px}
+.card .tl{font-size:calc(7.2pt*var(--k));color:#64748B;line-height:1.45;margin-top:.4mm}
+.card .fr{font-size:calc(7.2pt*var(--k));line-height:1.45;margin-top:.6mm}
+.card .fr b{color:var(--pc);font-weight:700}
+.card .ms{margin-top:calc(.8mm*var(--k));display:grid;gap:calc(.5mm*var(--k))}
+.card .m{font-size:calc(7.2pt*var(--k));line-height:1.45;color:#334155}
+.card .m b{font-weight:700;color:#0F172A}
+.card .m b::after{content:"｜";color:#CBD5E1;font-weight:400}
+.sheet[data-d="1"] .card .tl{display:none}
+.sheet[data-d="1"] .card .fr.f{display:none}
+.sheet[data-d="2"] .card .tl,.sheet[data-d="2"] .card .fr.f,.sheet[data-d="3"] .card .tl,.sheet[data-d="3"] .card .fr{display:none}
+.sheet[data-d="2"] .card .m b+i,.sheet[data-d="3"] .card .m b+i{display:none}
+.sheet[data-d="2"] .card .m b::after,.sheet[data-d="3"] .card .m b::after{content:""}
+.sheet[data-d="2"] .card .m b::before,.sheet[data-d="3"] .card .m b::before{content:"▸ ";color:var(--lc)}
+.sheet[data-d="2"] .card .ms,.sheet[data-d="3"] .card .ms{display:flex;flex-wrap:wrap;gap:.4mm 2.6mm}
+.prow.off .dd{display:none}
+.cards>.card:last-child:nth-child(odd){grid-column:1/-1}
+/* 科目很多時：路徑說明收起、卡片改三欄 */
+.sheet[data-d="4"] .card .tl,.sheet[data-d="4"] .card .fr,.sheet[data-d="4"] .card .m b+i,
+.sheet[data-d="3"] .prow .dd,.sheet[data-d="3"] .prow .ex,.sheet[data-d="4"] .prow .dd,.sheet[data-d="4"] .prow .ex{display:none}
+.sheet[data-d="4"] .cards{grid-template-columns:1fr 1fr 1fr}
+.sheet[data-d="4"] .cards>.card:last-child:nth-child(odd){grid-column:auto}
+.sheet[data-d="4"] .card .m b::after{content:""}
+.sheet[data-d="4"] .card .ms{display:flex;flex-wrap:wrap;gap:.3mm 2mm}
+.sheet[data-d="4"] .card .m{font-size:calc(6.6pt*var(--k))}
+.sheet[data-d="5"] .card .tl,.sheet[data-d="5"] .card .fr,.sheet[data-d="5"] .card .ms,
+.sheet[data-d="5"] .prow .dd,.sheet[data-d="5"] .prow .ex{display:none}
+.sheet[data-d="5"] .cards{grid-template-columns:repeat(4,1fr)}
+.sheet[data-d="5"] .cards>.card:last-child:nth-child(odd){grid-column:auto}
+.empty{border:.4mm dashed #CBD5E1;border-radius:2mm;padding:10mm;text-align:center;color:#94A3B8;font-size:10pt}
+
+.pk{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;padding:2mm 11mm}
+.pk div{background:color-mix(in srgb,var(--pc) 8%,#fff);border-radius:1.6mm;padding:1.4mm 2mm;font-size:7pt;color:#475569;line-height:1.4}
+.pk b{display:block;font-size:8pt;color:color-mix(in srgb,var(--pc) 80%,#0F172A)}
+.cr{display:flex;gap:1.5mm;flex-wrap:wrap;padding:0 11mm 2mm;font-size:7pt;align-items:center}
+.cr .h{font-weight:900;color:#475569;margin-right:1mm}
+.cr span.c{border:.3mm solid #E2E8F0;border-radius:5mm;padding:.4mm 2mm;color:#334155}
+.cr span.c b{color:var(--pc)}
+.ft{display:grid;grid-template-columns:1fr auto;gap:4mm;align-items:center;background:#1E293B;color:#E2E8F0;padding:3.5mm 11mm;font-size:8pt;line-height:1.55}
+.ft .br{font-size:10.5pt;font-weight:900;color:#fff}
+.ft .ad{opacity:.8}
+.ft .cn{margin-top:1mm}
+.ft .cn b{color:#fff}
+.ft .note{margin-top:1mm;color:#FDE68A}
+.ft .qr{display:flex;align-items:center;gap:2.5mm}
+.ft .qr img{width:19mm;height:19mm;background:#fff;border-radius:1mm;padding:.8mm;object-fit:contain}
+.ft .qr div{font-size:8pt;text-align:right}
+.ft .lg{font-size:7pt;opacity:.6}
+
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff;height:auto}
+  .side,.bar{display:none!important}
+  .app{display:block;height:auto}
+  .main{padding:0;overflow:visible;display:block}
+  .stage{width:auto!important;height:auto!important}
+  .stage .sheet{transform:none!important;box-shadow:none}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;height:auto}
+  .side{border-right:0;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1>專屬學員課程規劃書</h1>
+    <p class="sub">選專班 → 勾選單科 → 右側即時產出 A4 DM，按「列印／存 PDF」即可。</p>
+
+    <div class="sec-h">STEP 1 · 學員與顧問資料</div>
+    <div class="grid2">
+      <div class="field"><label>學員姓名</label><input id="f_name" placeholder="王小明"></div>
+      <div class="field"><label>規劃日期</label><input id="f_date" type="date"></div>
+      <div class="field full"><label>學習目標（選填，會顯示在 DM 標題下）</label><input id="f_goal" placeholder="例：半年內轉職 AI 應用工程師"></div>
+      <div class="field"><label>課程顧問</label><input id="f_cons" placeholder="顧問姓名"></div>
+      <div class="field"><label>顧問電話</label><input id="f_tel" placeholder="0912-345-678"></div>
+      <div class="field"><label>LINE ID（選填）</label><input id="f_line"></div>
+      <div class="field"><label>分校</label><select id="f_br"></select></div>
+      <div class="field full"><label>顧問備註（選填，顯示在頁尾）</label><input id="f_note" placeholder="例：本月報名享早鳥優惠，名額有限"></div>
+      <div class="field full"><label>QR Code 圖片（選填，例如 LINE 或報名連結）</label><input id="f_qr" type="file" accept="image/*"></div>
+    </div>
+
+    <div class="sec-h">STEP 2 · 選擇專班</div>
+    <div class="progs" id="progs"></div>
+
+    <div class="sec-h">STEP 3 · 勾選單科</div>
+    <div class="tools">
+      <button class="btn" id="b_core">套用推薦組合</button>
+      <button class="btn" id="b_none">全部清除</button>
+      <button class="btn" id="b_fold">收合／展開</button>
+    </div>
+    <div id="levels"></div>
+  </aside>
+
+  <main class="main">
+    <div class="bar">
+      <div class="info" id="info"></div>
+      <label><input type="checkbox" id="o_full"> 金字塔全彩</label>
+      <label><input type="checkbox" id="o_car" checked> 職涯薪資</label>
+      <button class="btn pri" id="b_print">列印／存 PDF</button>
+    </div>
+    <div class="stage" id="stage"><div class="sheet" id="sheet"></div></div>
+  </main>
+</div>
+
+<script>
+/* 課程資料：由 2026DM 專班 DM 拆解成單科
+   course 欄位：
+   id, name, tag(一句話), focus(學習重點), result(實戰成果), cert(證照/證明), badge(推薦/軟實力/延伸…),
+   core(預設推薦組合), mods:[{t:模組名稱, i:[單元…]}]
+*/
+
+/* ---------- AI熟練師：共用科目 ---------- */
+const C_GENAI = {id:'genai', name:'生成式AI能力認證', tag:'從零理解生成式 AI，學會用對工具、下對指令', cert:'生成式AI能力認證', core:true,
+  mods:[{t:'生成式AI基礎概論',i:['AI趨勢','技術原理','產業應用']},{t:'AI工具與提示詞實作',i:['圖文生成','影音應用','Prompt設計']},{t:'AI導入與認證解析',i:['企業應用','倫理法規','考題解析']}]};
+const C_AICORE = {id:'aicore', name:'AI人工智慧核心能力認證', tag:'掌握 AI 核心原理、資料處理與 Python 基礎', cert:'人工智慧核心能力認證',
+  mods:[{t:'AI基礎與資料應用',i:['AI發展趨勢','核心技術原理','資料處理分析']},{t:'Python與系統實務',i:['Python基礎','資料結構與流程控制','部署維運']},{t:'AI治理與認證解析',i:['倫理法規','認證重點','模擬試題解析']}]};
+const C_AIOFFICE = {id:'aioffice', name:'AI辦公室應用', tag:'快速完成文案、報表與重複作業，優化辦公流程', cert:'生成式AI辦公室應用能力認證', core:true,
+  mods:[{t:'Prompt工程與AI工具基礎',i:['提示詞設計','ChatGPT','Copilot']},{t:'辦公室文本與圖像應用實務',i:['文案撰寫','圖像生成','數據資訊視覺化']},{t:'跨工具整合與綜合應用',i:['工具串聯應用','AI專案倡議','延伸應用']}]};
+
+const C_AIAD = {id:'aiad', name:'AI廣告設計（Photoshop）', tag:'AI 產出素材 × 商業影像合成，完成創意海報作品', result:'創意海報設計作品',
+  mods:[{t:'介面環境與檔案管理',i:['認識工具面板區','色彩管理與校正','圖層概念與應用']},{t:'商業影像整合設計',i:['影像合成','排版修圖','商業構圖']},{t:'創意海報設計',i:['AI產出素材','海報創意實作','作品成果輸出']}]};
+const C_AIBRAND = {id:'aibrand', name:'AI形象設計（Illustrator）', tag:'向量繪圖 × 品牌識別，AI 生成 Logo 與名片 DM', result:'Logo／名片／廣告DM作品',
+  mods:[{t:'向量繪圖與插畫設計',i:['物件路徑編輯','筆刷應用','插畫特效']},{t:'品牌視覺與識別設計',i:['文字排版','版面設計','品牌識別']},{t:'創意發想與實作',i:['AI生成Logo','名片設計實作','廣告DM實作']}]};
+const C_VISUAL = {id:'visual', name:'視覺行銷實作', tag:'從品牌主視覺到社群素材延伸，完成整合 Mockup', result:'品牌整合 Mockup 作品',
+  mods:[{t:'品牌視覺識別設計',i:['品牌定位','主視覺設計','VI系統應用']},{t:'社群品牌行銷實作',i:['品牌素材延伸','社群經營','平台建置']},{t:'作品整合Mockup',i:['介面工具設定','文字編輯技巧','圖文整合應用']}]};
+const C_SHORTV = {id:'shortv', name:'AI短影音創作', tag:'AI 腳本分鏡 × 拍攝剪輯，打造品牌短影音與虛擬 IP', result:'品牌短影音成品',
+  mods:[{t:'AI腳本企劃與分鏡',i:['腳本生成','分鏡規劃','流程設計']},{t:'拍攝與剪輯實作',i:['構圖運鏡','剪輯轉場','字幕音效']},{t:'影音整合與品牌輸出',i:['動畫製作','虛擬IP打造','成品輸出']}]};
+
+const SKILL_PRO = [
+  {id:'p_eff', name:'AI效率應用', tag:'職場效率全面升級', mods:[{i:['辦公室必學的AI工作術','Notion x ChatGPT專案管理實戰','AI工作流']}]},
+  {id:'p_mkt', name:'AI行銷應用', tag:'廣告投放與官方帳號經營', mods:[{i:['Google Ads廣告操作實務','Facebook廣告實戰全攻略','LINE官方帳號操作經營實戰班']}]},
+  {id:'p_job', name:'AI職場技能', tag:'數據分析與提案表達', mods:[{i:['Power BI資料視覺化與數據分析','商業簡報提案術','Excel高效工作術（圖表／樞紐／函數）']}]},
+  {id:'p_media', name:'AI影音創作', tag:'零基礎做出爆款影音', mods:[{i:['零基礎AI影片生成','AI影音社群賺金術','你的第一堂爆款短影音課']}]},
+  {id:'p_game', name:'AI遊戲開發', tag:'材質、企劃到 AI 製作遊戲', mods:[{i:['Substance Painter模型材質貼圖','獨立遊戲開發企劃','Claude Code遊戲製作']}]},
+  {id:'p_vibe', name:'AI Vibe Coding', tag:'不寫死程式也能開發', mods:[{i:['AI程式－Vibe Coding開發全流程','ChatGPT AI聊天機器人開發','Claude Agent實戰入門']}]},
+  {id:'p_life', name:'生活風格', tag:'興趣、理財與表達力', mods:[{i:['塔羅牌－秘儀解析','開運居家風水','基礎魔術的觀念與呈現','AI x 選股－交易思維重塑','心理諮商師教的強效溝通表達課','打造你的投資策略（台股篇）','AI詞曲創作','全方位歌唱特訓班','Sample音樂編曲入門']}]},
+  {id:'p_all', name:'AI全職能', tag:'各職務的 AI 實戰應用', mods:[{i:['AI人力資源','AI財務會計','AI業務銷售','AI電子商務','AI行銷企劃','AI客服公關','AI專案管理','AI行政總務','AI個人創作者','AI音樂人']}]},
+];
+
+/* ---------- Python 系列 ---------- */
+const C_PYDATA = {id:'pydata', name:'Python程式資料分析', tag:'Python × AI 協作，建立資料處理、統計分析與商業洞察能力', result:'Python商業資料分析報告', core:true,
+  mods:[{t:'Python基礎與AI協作',i:['開發環境建置與程式執行','變數／判斷式／迴圈與函式','生活程式開發實戰']},{t:'資料處理與分析應用',i:['多格式資料讀取','統計分析應用','資料分析報告實務']},{t:'資料庫與大數據整合',i:['SQL資料串接','自然語言查詢','大數據分析報告']}]};
+const C_PYCRAWL = {id:'pycrawl', name:'Python爬蟲程式與資料視覺化開發', tag:'爬蟲 × 視覺化 × AI 協作，打造資料擷取、清理與圖表呈現能力', result:'自動化爬蟲工具＋互動式數據儀表板', core:true,
+  mods:[{t:'網頁爬蟲核心技術',i:['爬蟲流程與環境建置','HTML／JSON資料解析','自動化爬蟲腳本設定']},{t:'動態網頁與自動化應用',i:['動態資料擷取','登入驗證處理','跨領域即時比較工具']},{t:'資料清理與視覺化呈現',i:['資料清理轉換','互動式圖表設計','商業分析儀表板']}]};
+const C_PYDATA_A = {id:'pydata_a', name:'Python程式資料分析', tag:'用 Python 建立資料處理流程，支援 LLM 開發需求', focus:'AI 輔助撰寫程式 × 資料清理 × 數據判讀', result:'完成一套資料分析實作專案', core:true,
+  mods:[{t:'Python入門認證',i:['Python認識應用','開發環境建置','Anaconda安裝','Python程式執行']},{t:'Python基礎語法',i:['資料型態與變數','判斷式與迴圈','串列與元組','字典與集合']},{t:'Python資料分析',i:['資料分析簡介','OpenData資料蒐集','Python資料處理、分析','模型建立應用']},{t:'資料分析實務演練',i:['資料庫應用','Open Data資料分析','Open Data資料應用']}]};
+const C_PYCRAWL_A = {id:'pycrawl_a', name:'Python爬蟲程式與資料視覺化開發', tag:'讓 LLM 不再只讀靜態資料，而能連接即時資訊來源', focus:'網頁資料擷取 × 自動化流程 × 視覺化呈現', result:'全自動資料採集機器人與智慧訂位／搶票助理系統', core:true,
+  mods:[{t:'建構Scraper',i:['Scraper程式原理','建構爬蟲環境','HTML和JSON解析','POST和GET基礎概念']},{t:'爬蟲程式實戰',i:['驗證圖像處理','財經資訊爬取','PTT網站爬取','facebook爬取']},{t:'Beautiful Soup4模組應用',i:['BS4應用概念','BS4剖析套件','urllib應用','logging應用']},{t:'網頁資料處理',i:['網頁資料萃取','OpenRefine應用','Filter與Facet應用','自然語言、動態網頁處理']},{t:'認識資料視覺化',i:['視覺化觀念建立','Seaborn','Plotly & Bokeh','python-igraph']},{t:'製作視覺化網頁',i:['圖表建構 & style控制','程式色彩工具','網頁元件 & 互動圖表','視覺網頁實務']}]};
+const C_PYCV = {id:'pycv', name:'Python視覺辨識與機器學習', tag:'從影像處理到 AI 辨識模型，建立電腦視覺與機器學習的專案能力', result:'AI 視覺辨識專案', core:true,
+  mods:[{t:'影像處理與視覺基礎',i:['影像色彩與通道處理','濾鏡、銳化與幾何變換','訓練影像預處理']},{t:'特徵擷取與模型訓練',i:['分類模型訓練實作','迴歸分析與趨勢預測','數據分類器']},{t:'AI辨識專案與分析應用',i:['物體偵測與動態監控','人臉偵測與身分辨識','視覺辨識模型部署實戰']}]};
+const C_PYDL = {id:'pydl', name:'Python深度學習與應用實務', tag:'從 PyTorch 框架到企業級 AI 應用，訓練能落地的深度學習模型', result:'深度學習模型應用', core:true,
+  mods:[{t:'深度學習模型建構',i:['PyTorch 模型開發環境建置','神經網路訓練流程設計','訓練／驗證程式實務']},{t:'電腦視覺與生成式AI',i:['CNN 影像分類模型應用','YOLO 物件偵測專案實作','深度學習專案製作']},{t:'LLM應用與AI系統部署',i:['Transformer 語言模型應用','RAG 知識庫檢索整合實作','端到端的AI程式製作']}]};
+const C_DJANGO = {id:'django', name:'Python Django Web開發實務', tag:'從網頁資料擷取到視覺化呈現，打造自動化資料分析與展示能力', result:'資料爬蟲與視覺化網站作品',
+  mods:[{t:'網頁資料擷取工程',i:['Scraper 架構與環境建置','HTML／JSON 資料解析應用','靜態網頁作品展示']},{t:'動態爬蟲與資料處理',i:['Beautiful Soup 資料萃取','Selenium 動態網頁爬取','後端資料庫串接與設計']},{t:'視覺化分析與作品整合',i:['Plotly／Bokeh 圖表設計','網絡圖與階層圖分析應用','企業級Django網站開發']}]};
+
+/* ---------- AI Agent 系列 ---------- */
+const C_AGENT = {id:'agent', name:'AI Agent應用開發', tag:'讓 LLM 從對話工具，升級為驅動流程的核心引擎', focus:'RAG 檢索增強 × MCP 資料互連 × Agent 任務編排', result:'RAG 智慧問答系統與 AI Agent 實作專案', core:true,
+  mods:[{t:'LLM基礎與模型理解',i:['LLM模型核心原理與架構','生成式語言模型運作機制','模型訓練與推理流程','大型語言模型應用架構']},{t:'LLM應用層與流程整合',i:['ChatGPT API應用實作','LangChain架構與流程','多模態AI應用整合','RAG檢索增強生成架構']},{t:'知識庫與資料管理',i:['向量資料庫原理與應用','向量化資料建置流程','結構化資料整合方式','知識庫建構與管理']},{t:'AI Agent應用與專案實作',i:['MCP架構設計與解析','Function Calling工具整合','企業級客服系統專案','專屬智能行動助理專案']}]};
+const C_FT = {id:'finetune', name:'Fine-Tuning與模型優化實務', tag:'讓模型從可生成，進階為可控、可優化的企業級能力', focus:'PEFT／LoRA 微調 × RLHF 回饋訓練 × RAG 強化策略', result:'垂直領域模型微調與部署', core:true,
+  mods:[{t:'機器學習核心基礎',i:['機器學習基礎概念應用','深度學習模型結構解析','生成式AI與模型運作','模型發展與技術趨勢']},{t:'Transformer模型實戰',i:['Transformer架構原理','模型參數調整與效能評估','微調技術（PEFT、LoRA）','RLHF回饋學習實務解析']},{t:'RAG檢索增強模型調校',i:['NLP／LLM模型運作流程','Naive RAG與進階策略','GraphRAG架構設計','模型效能與準確度優化']},{t:'應用整合與專案實作',i:['自動化資料生成概論','模型訓練與部署流程','效能評估與成果分析','專案成果展示與經驗分享']}]};
+const C_SOLPM = {id:'solpm', name:'AI解決方案規劃與專案管理', tag:'整合需求與技術選型，升級為專案主導角色', focus:'需求釐清 × 技術選型 × 風險效益評估', result:'可實際提案的 AI 解決方案企劃書', core:true,
+  mods:[{t:'AI解決方案設計概論',i:['課程導論與期望管理','AI解決方案框架解析','實戰案例拆解與分析','專案演練與實務操作']},{t:'需求定義與技術可行性評估',i:['精準定義AI導入目標','業務需求與目標設定','技術可行性與限制評估','商業資源整合與判斷']},{t:'方案設計與技術選型',i:['AI架構設計與模組規劃','三層架構設計邏輯解析','業務、技術與實施層規劃','資料需求與選型策略規劃']},{t:'應用整合與專案實作',i:['專案流程與風險控管','指標訂定與成效追蹤','商業語言與價值溝通','專題成果發表']}]};
+const C_NEGO = {id:'nego', name:'AI商業談判技巧', badge:'軟實力', tag:'掌握籌碼盤點與客訴應變，透過 AI 模擬對話提升職場決策影響力',
+  mods:[{t:'AI賦能精準對頻',i:['深度溝通與識人心理','職場實戰與AI模擬應對']},{t:'深度說服力實戰',i:['核心說服邏輯拆解','針對性說服力包裝']},{t:'攻防策略談判學',i:['策略性談判佈局','攻防控權與危機應變']}]};
+const C_VIBE_S = {id:'vibe_s', name:'Vibe Coding開發全流程', badge:'軟實力', tag:'驅動 AI 規格工程，重塑自動化開發流程',
+  mods:[{t:'Cursor工具與自動化',i:['環境與MCP整合','開發規則與標準']},{t:'規格規劃與提示工程',i:['模型與Prompt技巧','Spec工程化實踐']},{t:'AI協作開發與實戰',i:['規格自動驅動開發','智能除錯效能優化']}]};
+const C_NOTION = {id:'notion', name:'Notion x ChatGPT專案管理實戰', badge:'軟實力', tag:'以 Notion 連結 AI 智能，賦能自動化流程，實現高效知識管理',
+  mods:[{t:'建構智能化工作流',i:['精準指令實戰','跨平台無痛整合']},{t:'打造個人化知識體系',i:['多維度資料庫應用','目標與進度追蹤']},{t:'升級高階管理與創作',i:['全方位專案佈局','多媒體創意協作']}]};
+const C_VIBE = {id:'vibe', name:'Vibe Coding開發全流程', tag:'從想法到 MVP 快速產出：專案構想 → Docs → PRD/Spec → Cursor 生成 → AI Debug', result:'AI 輔助製作專案原型 Prototype', core:true,
+  mods:[{t:'AI協作開發基礎',i:['Cursor開發環境入門','Rules與MCP流程整合','AI模型與溝通技巧']},{t:'專案文件與規格設計',i:['專案規劃實作','Docs管理','BMad與SpecKit建立']},{t:'程式生成與專案實戰',i:['Spec技術應用','Docs管理','AI Debug與專案展示']}]};
+const C_SOLD = {id:'soldesign', name:'程式解決方案設計', badge:'限時加碼', tag:'培養 PM 與架構師思維：系統架構、技術選型與開發成本評估', result:'企業級解決方案提案簡報',
+  mods:[{t:'架構思維 建立系統全貌',i:['現代資訊系統架構','系統分層與API-first','系統運作與服務解析']},{t:'資料整合 串接流程服務',i:['資料收集與整理流程','資料處理與儲存應用','系統資料串接方式']},{t:'技術選型 完成Python方案',i:['Python 生態系工具','AI／ML 與 GenAI 技術整合','部署MLOps與穩定性設計']}]};
+
+const ext = (c, badge) => Object.assign({}, c, {badge, core:false});
+
+/* ---------- AI 外語 ---------- */
+const LANG = [
+  {id:'en', name:'英語系列', tag:'AI 口說陪練 × 真人互動，從生活會話到多益檢定', core:true,
+    mods:[{t:'基礎會話',i:['發音與生活情境會話','初級會話','中級會話','職場表達']},{t:'旅遊文化',i:['台北城市導覽英語','在地文化導覽英語','國際節慶文化英語','15堂情境字彙必修']},{t:'多益檢定',i:['多益聽力衝刺','多益閱讀衝刺']}]},
+  {id:'jp', name:'日語系列', tag:'從五十音入門、旅日會話到 N1 檢定',
+    mods:[{t:'入門基礎',i:['日語五十音入門','日語 N5 基礎','商務日語']},{t:'旅遊文化',i:['日本城市旅遊日語','旅日實用情境會話','自由行必備語言包','日本社會文化日語','動漫日語']},{t:'日語檢定',i:['N4 高分解碼術','N3 破題技巧','N2／N1 閱讀解析','N2／N1 高頻陷阱破題']}]},
+  {id:'kr', name:'韓語系列', tag:'韓語情境會話，旅遊到進階溝通',
+    mods:[{t:'基礎會話',i:['韓語初級情境會話']},{t:'旅遊應用',i:['旅韓實用情境會話']},{t:'進階溝通',i:['韓語中高級會話']}]},
+];
+
+/* ---------- 資訊安全 ---------- */
+const SEC = {
+  base:{id:'secbase', name:'資安攻防策略', badge:'先修', tag:'資安新手入門首選：從網路攻防到法規認知，建立完整資安視野', cert:'完課證明', core:true,
+    mods:[{t:'資安原則',i:['資安三要素：CIA','常見資安風險與類型','資安法規與職場倫理']},{t:'業務持續與事故應變',i:['營運持續計劃與控制措施','高可用性、容錯與備份機制','資安事件應變與通報流程']},{t:'存取控制概念',i:['身分認證與權限管理','密碼政策與管理原則','多因子認證與安全應用']},{t:'安全營運與政策實務',i:['資料生命週期管理','日誌紀錄與安全監控','變更管理流程','資安政策實務']},{t:'網路安全與威脅防護',i:['網路架構與型態介紹','OSI七層模型概念','資安威脅與攻擊手法','基礎網路安全防護']}]},
+  ipas:{id:'ipas', name:'iPAS 資訊安全工程師', badge:'入門必備', tag:'iPAS 證照＋實務技能，幫你穩健踏入資安領域', cert:'iPAS 資訊安全工程師', core:true,
+    mods:[{t:'培訓優勢｜線上真人・即時指導',i:['線上學資安，互動即時問','實戰資安課，帶你打攻防','地點不設限，輕鬆學攻防']},{t:'跨域學習｜專業加值・必備技術',i:['北中南名師獨家Live','從零開始學資安，強化實戰防護','打好資安基礎，考取iPAS證照']}]},
+  ccna:{id:'ccna', name:'CCNA網路管理', tag:'全球認可證照：掌握路由、交換器與資安技能，打造網路與資安實戰力', cert:'CCNA 證照＋完課證明', core:true,
+    mods:[{t:'網路基礎與交換技術',i:['VLAN與Trunk設定','VLAN間路由操作','冗餘交換拓撲建構','EtherChannel強化穩定性']},{t:'無線網路與服務品質',i:['Wi-Fi架構、SSID加密與干擾處理','QoS語音／視訊品質','SDN與網路虛擬化概論']},{t:'網路安全與防護實務',i:['ACL基礎設定與應用','SSH、Console連線加密','設備加固與威脅檢查','NAT、IPS、VPN、防火牆']},{t:'進階路由與WAN技術',i:['OSPF路由協定入門','HSRP、VRRP、GLBP備援','PPP、MPLS、VPN傳輸','對外連線與IP配置']},{t:'系統監控與智慧管理',i:['SNMP、NetFlow、Syslog監控','思科設備備份與韌體管理','AI與自動化智慧網路趨勢']}]},
+  secplus:{id:'secplus', name:'CompTIA Security+ 國際網路資安認證', tag:'資安基礎實務：從防護原理到威脅應對，對應企業初階資安職缺', cert:'CompTIA Security+ 證照＋完課證明', core:true,
+    mods:[{t:'網路與設備防護',i:['安全網路設計與安全協定','防火牆、IDS/IPS設備建置','主機安全解決方案','行動裝置安全管理與防護']},{t:'資安概論與威脅分析',i:['資安控制架構與分類','惡意程式與攻擊類型','威脅情報來源與應用']},{t:'安全營運與事件應變',i:['資安事件應變流程','數位採證基本概念','資安風險評估與管理','網路安全韌性策略實務']},{t:'加密技術與存取控管',i:['加密演算法原理與應用','加密使用情境與弱點','公鑰基礎結構','帳戶與存取權限控管']}]},
+  cysa:{id:'cysa', name:'CompTIA CySA+ 網路資安分析認證', tag:'資安監控實務：精通威脅分析與事件應變，對應企業 SOC 需求', cert:'CompTIA CySA+ 證照＋完課證明',
+    mods:[{t:'安全營運與威脅分析',i:['系統與網路安全架構','惡意活動指標','資安工具與技術應用','威脅情報與追蹤']},{t:'弱點管理',i:['弱點掃描與評估','弱點風險排序','弱點修補與應變']},{t:'報告與溝通',i:['弱點管理報告','事件應變報告']},{t:'事件應變管理',i:['資安攻擊框架解析','事件應變策略','事件生命週期管理']}]},
+  iso:{id:'iso27001', name:'ISO 27001 資訊安全管理主導稽核師', tag:'資安治理管理：聚焦標準建置與稽核規劃，準備國際證照考試', cert:'ISO 27001 證照＋完課證明', core:true,
+    mods:[{t:'資安標準與制度基礎',i:['資通安全概論與發展','ISO 27001 標準介紹','ISO 27001 控制措施介紹']},{t:'管理系統與稽核實務',i:['資訊安全管理系統導入','稽核流程規劃與執行']},{t:'認證考照',i:['ISO 27001認證考試','附補考機會一次，強化考照實力']}]},
+  cissp:{id:'cissp', name:'CISSP 資安系統專家認證', tag:'高階資安領導：整合策略、治理與控管，涵蓋 8 大核心領域', cert:'ISC2 CISSP 證照＋完課證明',
+    mods:[{t:'安全架構與防護實務',i:['安全架構與工程','通訊與網路安全','軟體開發安全']},{t:'資安策略與治理',i:['安全與風險管理','資產安全管理']},{t:'存取控制與營運管理',i:['身份與存取管理','安全評估與測試','安全營運與事件應變']}]},
+};
+
+/* ---------- 專班 ---------- */
+const PROGRAMS = [
+  {
+    id:'agent', name:'AI Agent 應用開發工程師', en:'AI Agent Application Development Engineer',
+    slogan:'從 Python 開發到 LLM 工作流建構，打造可上線 AI 系統',
+    color:'#1592D6', color2:'#2EC4C9',
+    pyramidNote:'越往上，AI 從「回答問題」變成「自己完成任務」',
+    levels:[
+      {no:'01', icon:'💬', name:'基礎問答', title:'AI 通識｜問對問題，讓 AI 成為助手',
+       desc:'金字塔基底：理解生成式 AI 原理與提示詞設計，能用 AI 完成日常問答、摘要與辦公作業。',
+       example:'跟 AI 說「把這份會議記錄整理成三點重點與待辦」，幾秒就完成。',
+       tools:['ChatGPT','Gemini','Copilot','Prompt 設計'],
+       courses:[C_GENAI, C_AICORE, C_AIOFFICE]},
+      {no:'02', icon:'✨', name:'AI 生成', title:'AI 生成｜讓 AI 幫你做出作品',
+       desc:'用 AI 產出圖像、文案、影音與行銷素材，把創意快速變成可交付的成果。',
+       example:'輸入產品特色，AI 生成海報、社群貼文與 30 秒短影音腳本。',
+       tools:['Photoshop AI','Illustrator','AI 影音','Power BI'],
+       courses:[C_AIAD, C_AIBRAND, C_VISUAL, C_SHORTV, ...SKILL_PRO]},
+      {no:'03', icon:'🔗', name:'AI 工作流程', title:'AI 工作流程｜串起資料與工具自動化',
+       desc:'以 Python 與 Vibe Coding 建立資料處理流程，讓 AI 抓資料、整理、分析並自動產出。',
+       example:'每天自動爬取競品價格，整理成互動圖表並寄到信箱。',
+       tools:['Python','爬蟲','資料視覺化','Cursor'],
+       courses:[C_PYDATA_A, C_PYCRAWL_A, C_VIBE_S, C_NOTION, C_NEGO, ext(C_PYCV,'推薦學習'), ext(C_PYDL,'推薦學習'), ext(C_DJANGO,'推薦學習')]},
+      {no:'04', icon:'🤖', name:'AI 代理人', title:'AI 代理人｜讓 AI 自己規劃並執行',
+       desc:'金字塔頂端：AI 不再只是照指令執行，而是自主拆解任務、呼叫工具、檢索知識庫、決定下一步。這一層練的是系統設計思維，而非單一操作技巧。',
+       example:'跟 AI Agent 說「幫我準備下週的投顧週報」，它自己查最新資料、算報酬率、生成簡報，只需要你最後確認。',
+       tools:['RAG 檢索增強','MCP 資料互連','Agent 任務編排','Fine-Tuning'],
+       courses:[C_AGENT, C_FT, C_SOLPM]},
+    ],
+    perks:[['數發部審核','符合《AI產業人才認定指引》'],['AI教練＋真人教練','架構指導・全程陪跑'],['JOB580 就業支持','8 項求職服務・保證面試'],['24hr 彈性進修','課程全面不加價']],
+    careers:[['AI 溝通師／提示詞工程師','50K–80K'],['AI 專案經理','55K–70K'],['AI 應用工程師','58K–125K'],['AI 代理開發工程師','60K–110K'],['AI 解決方案顧問','65K–95K']],
+  },
+  {
+    id:'skill', name:'AI 熟練師', en:'AI Skills Specialist',
+    slogan:'AI 工具 × 專業技能 × 工作應用，數發部核定 AI 實戰課程',
+    color:'#1E63C6', color2:'#F08A1C',
+    pyramidNote:'由理解、活用到掌握，最後接軌國際',
+    levels:[
+      {no:'01', icon:'📘', name:'AI 通識', title:'AI 通識｜理解 AI',
+       desc:'掌握 AI 邏輯：理解生成技術、提示設計與模型運作；優化辦公流程，並取得 AI 認證。',
+       example:'用 Copilot 把 Excel 報表重點整理成週報，原本 1 小時縮短到 10 分鐘。',
+       tools:['ChatGPT','Copilot','Prompt 設計','AI 認證'],
+       courses:[C_GENAI, C_AICORE, C_AIOFFICE]},
+      {no:'02', icon:'🎨', name:'AI 工作應用', title:'AI 工作應用｜活用 AI',
+       desc:'建立設計思維、拓展創意工具，運用 AI 完成圖像、影音與網頁，從社群素材到提案網站強化實務輸出。',
+       example:'一個人用 AI 完成品牌 Logo、海報、名片與短影音，直接放進作品集。',
+       tools:['Photoshop','Illustrator','Mockup','短影音'],
+       courses:[C_AIAD, C_AIBRAND, C_VISUAL, C_SHORTV]},
+      {no:'03', icon:'🚀', name:'AI 專業技能', title:'AI 專業技能｜掌握 AI',
+       desc:'最新 AI 賦能：全面整合生成式 AI 工具與職場實力，涵蓋程式、行銷、設計、投資理財與音樂創作。',
+       example:'用 AI 規劃 Google Ads 廣告文案與受眾，再用 Power BI 追蹤成效。',
+       tools:['Google Ads','Power BI','Vibe Coding','AI 全職能'],
+       courses:SKILL_PRO.map(c=>Object.assign({},c,{core:['p_eff','p_job'].includes(c.id)}))},
+      {no:'04', icon:'🌏', name:'AI 外語', title:'AI 外語｜接軌國際',
+       desc:'依照程度與目標彈性選課：AI 口說陪練即時修正發音，搭配中外師真人互動與情境實戰。',
+       example:'出國前用 AI 陪練模擬點餐、問路與飯店入住對話，開口更有自信。',
+       tools:['AI 口說陪練','真人互動','情境實戰','檢定衝刺'],
+       courses:LANG},
+    ],
+    perks:[['數發部認可培訓','10 張產業證照加持'],['AI 隨身教練＋真人教練','即時解惑・實戰養成'],['1111 就業媒合','AI 媒合平台・履歷健診'],['24hr 彈性進修','課程全面不加價']],
+    careers:[['AI 影像工程師','50K–80K'],['AI 模型訓練工程師','50K–70K'],['數據應用工程師','45K–60K'],['語音訊號處理工程師','45K–60K'],['多媒體應用工程師','38K–45K']],
+  },
+  {
+    id:'ai', name:'AI 人工智慧工程師', en:'Artificial Intelligence Engineer',
+    slogan:'掌握 Python × AI 開發技術，打造善用 AI 的工程實力',
+    color:'#3B8FD9', color2:'#F2B21B',
+    pyramidNote:'會用 AI 不夠，懂得與 AI 協作才是關鍵',
+    levels:[
+      {no:'01', icon:'🧠', name:'AI 通識', title:'職場必備｜AI 通識課',
+       desc:'AI 工具 × 專業技能 × 工作應用：先建立 AI 素養，再取得數發部核定的產業證照。',
+       example:'用 AI 完成提案簡報與文案，並考取生成式 AI 能力認證。',
+       tools:['生成式 AI','辦公室應用','AI 認證','提示詞'],
+       courses:[C_GENAI, C_AICORE, C_AIOFFICE, C_AIAD, C_AIBRAND, C_VISUAL, C_SHORTV, ...SKILL_PRO]},
+      {no:'02', icon:'🐍', name:'Python 基底', title:'專業基底｜Python 資料分析 × 爬蟲 × 視覺化',
+       desc:'AI 都能生成程式了，為什麼還要學 Python？只有懂得程式底層邏輯，才具備判讀、修正 AI 生成失誤與落地應用的能力。',
+       example:'寫程式自動抓取並清洗數據、建立排程，再用圖表精準決策。',
+       tools:['Python','SQL','爬蟲','儀表板'],
+       courses:[C_PYDATA, C_PYCRAWL]},
+      {no:'03', icon:'⚙️', name:'整合應用', title:'專業進階｜Python 專案開發實務',
+       desc:'運用 Python 串接資料分析、AI 模型與應用服務，打造具備商業應用價值的智慧化專案。',
+       example:'用 YOLO 做賣場人流偵測，結果即時顯示在 Django 網站上。',
+       tools:['OpenCV','PyTorch','YOLO','Django'],
+       courses:[C_PYCV, C_PYDL, C_DJANGO]},
+      {no:'04', icon:'🏆', name:'高階實戰', title:'高階玩家｜AI 工作流與解決方案',
+       desc:'以 Vibe Coding 從想法快速做出 MVP，並培養 PM 與架構師思維，從工程師邁向能主導專案的技術顧問。',
+       example:'一週內用 Cursor + AI 完成產品原型，並寫出企業級解決方案提案。',
+       tools:['Cursor','Spec 規格','MLOps','AI Agent'],
+       courses:[C_VIBE, C_SOLD, ext(C_AGENT,'延伸學習'), ext(C_FT,'延伸學習'), ext(C_SOLPM,'延伸學習')]},
+    ],
+    perks:[['數發部審核','符合《AI產業人才認定指引》'],['獨家產學培訓','程式 × AI 協作・保證面試'],['JOB580 就業支持','8 項求職服務'],['24hr 彈性進修','課程全面不加價']],
+    careers:[['資料分析工程師','35K–60K'],['Python 開發工程師','40K–65K'],['AI 軟體工程師','45K–80K'],['機器學習工程師','50K–80K'],['電腦視覺工程師','50K–85K']],
+  },
+  {
+    id:'sec', name:'資訊安全工程師', en:'Information Security Engineer',
+    slogan:'資安分析 × 攻防實戰 × 國際證照，一站養成企業最搶手新星',
+    color:'#C8202B', color2:'#2A3140',
+    pyramidNote:'從防禦到主導：資安實力，由你掌握',
+    levels:[
+      {no:'01', icon:'🛡️', name:'資安基礎', title:'先修養成｜打好資安基礎',
+       desc:'資安新手入門首選：從資安三要素、存取控制到事故應變，搭配 iPAS 證照穩健踏入資安領域。',
+       example:'收到可疑釣魚信時，能判斷風險、依流程通報並保全證據。',
+       tools:['CIA 三要素','存取控制','事故應變','iPAS'],
+       courses:[SEC.base, SEC.ipas]},
+      {no:'02', icon:'🌐', name:'網路管理', title:'網路技術｜CCNA 網路管理',
+       desc:'掌握路由、交換器、無線網路與網路安全設定，打造網路與資安的底層實戰力。',
+       example:'替公司規劃 VLAN 分流與 ACL 規則，讓訪客網路與內網完全隔離。',
+       tools:['VLAN','OSPF','ACL','VPN'],
+       courses:[SEC.ccna]},
+      {no:'03', icon:'⚔️', name:'攻防技術', title:'技術實戰｜威脅分析與事件應變',
+       desc:'從防護原理到威脅應對，再到 SOC 資安監控、弱點管理與事件應變全流程。',
+       example:'在 SOC 監控到異常登入，快速分析攻擊手法、封鎖來源並產出事件報告。',
+       tools:['IDS/IPS','弱點掃描','威脅情報','SOC'],
+       courses:[SEC.secplus, SEC.cysa]},
+      {no:'04', icon:'👑', name:'治理領導', title:'管理治理｜資安主導與決策',
+       desc:'對標國際標準：導入 ISO 27001 管理制度與稽核，並以 CISSP 整合策略、治理與控管。',
+       example:'帶領公司導入 ISO 27001，規劃稽核流程並向主管提出資安投資建議。',
+       tools:['ISO 27001','稽核規劃','風險管理','CISSP'],
+       courses:[SEC.iso, SEC.cissp]},
+    ],
+    perks:[['國際證照','CCNA・Security+・CySA+・ISO 27001・CISSP'],['獨家產學培訓','AI 職缺媒合・結訓保證面試'],['學習保障','就業輔導＋補課保障＋免費重修一年'],['24hr 彈性進修','實體＋線上＋雲端']],
+    careers:[['ISO27001 稽核員','40K–50K'],['網路工程師','42K–60K'],['資安工程師','50K–70K'],['滲透工程師','50K–80K'],['資安顧問、主管','80K–150K']],
+  },
+];
+
+const BRANCHES = [
+  ['羅東認證中心','03-956-6156','宜蘭縣羅東鎮中正北路 1 號'],
+  ['基隆認證中心','02-2428-8808','基隆市仁愛區愛三路 118 號 6 樓'],
+  ['忠孝認證中心','02-2740-3862','臺北市忠孝東路四段 178 號 4 樓'],
+  ['館前認證中心','02-2389-6577','臺北市館前路 2 號 5 樓'],
+  ['士林認證中心','02-8861-4338','臺北市士林區文林路 338 號 4 樓之 1'],
+  ['公館認證中心','02-2364-8885','臺北市羅斯福路三段 272 號 3 樓'],
+  ['板橋認證中心','02-2968-1701','新北市板橋區府中路 29-1 號 6 樓'],
+  ['新莊認證中心','02-2994-6836','新北市新莊區中正路 162 號 5 樓'],
+  ['三重認證中心','02-8983-8802','新北市三重區正義北路 27 號'],
+  ['永和認證中心','02-2920-3589','新北市永和區永和路二段 59 號 4 樓'],
+  ['桃園認證中心','03-347-1078','桃園市桃園區大同路 11 號 4 樓'],
+  ['中壢認證中心','03-427-1238','桃園市中壢區中正路 183 號 1-3 樓'],
+  ['新竹認證中心','03-523-5568','新竹市中華路二段 318 號 1-3 樓'],
+  ['台中站前認證中心','04-2227-0328','臺中市中區建國路 123 號 3 樓'],
+  ['台中三民認證中心','04-2223-5089','臺中市北區三民路三段 112 號 5 樓'],
+  ['逢甲認證中心','04-2451-8281','臺中市西屯區逢甲路 159 號 1-3 樓'],
+  ['豐原認證中心','04-2515-2278','臺中市豐原區中正路 116 號 1-3 樓'],
+  ['彰化認證中心','04-722-9088','彰化縣彰化市中正路一段 544 號'],
+  ['斗六認證中心','05-533-3238','雲林縣斗六市民生路 199 號'],
+  ['嘉義認證中心','05-225-8268','嘉義市中正路 709 號'],
+  ['台南認證中心','06-211-0516','臺南市成功路 57 號'],
+  ['永康認證中心','06-312-1261','臺南市永康區中華路 150 號 1-4 樓'],
+  ['高雄認證中心','07-285-2599','高雄市中山一路 243 號'],
+  ['楠梓認證中心','07-358-2968','高雄市楠梓區建楠路 219 號'],
+  ['鳳山認證中心','07-710-3230','高雄市鳳山區光遠路 181 號'],
+  ['屏東認證中心','08-732-5018','屏東縣屏東市中山路 25 號'],
+];
+</script>
+<script>
+const LC = ['var(--L1)','var(--L2)','var(--L3)','var(--L4)'];
+const LCHEX = ['#6CC9C6','#8FAEEA','#B69CF2','#E39A35'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('lcplan_'+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('lcplan_'+k, JSON.stringify(v)); }catch(e){} }
+};
+
+const state = {
+  prog: store.get('prog', 'agent'),
+  sel: store.get('sel', {}),          // { progId: ["levelIdx:courseId", ...] }
+  activeLv: 3,
+  qr: null,
+  folded: false,
+};
+const P = () => PROGRAMS.find(p => p.id === state.prog) || PROGRAMS[0];
+const selSet = () => new Set(state.sel[state.prog] || []);
+const saveSel = s => { state.sel[state.prog] = [...s]; store.set('sel', state.sel); };
+
+/* ---------- 表單 ---------- */
+const FIELDS = ['name','date','goal','cons','tel','line','br','note'];
+function initForm(){
+  $('f_br').innerHTML = '<option value="">（請選擇分校）</option>' +
+    BRANCHES.map((b,i) => `<option value="${i}">${b[0]}　${b[1]}</option>`).join('');
+  const saved = store.get('form', {});
+  FIELDS.forEach(f => { if(saved[f] != null && f !== 'name' && f !== 'goal' && f !== 'date') $('f_'+f).value = saved[f]; });
+  $('f_date').value = new Date().toISOString().slice(0,10);
+  FIELDS.forEach(f => $('f_'+f).addEventListener('input', () => {
+    const o = {}; FIELDS.forEach(k => o[k] = $('f_'+k).value); store.set('form', o); render();
+  }));
+  $('f_qr').addEventListener('change', e => {
+    const file = e.target.files[0]; if(!file){ state.qr = null; render(); return; }
+    const r = new FileReader(); r.onload = () => { state.qr = r.result; render(); }; r.readAsDataURL(file);
+  });
+}
+
+/* ---------- 專班 & 科目清單 ---------- */
+function renderProgs(){
+  $('progs').innerHTML = PROGRAMS.map(p => {
+    const n = (state.sel[p.id] || []).length;
+    return `<button class="prog ${p.id===state.prog?'on':''}" style="--c:${p.color}" data-p="${p.id}">
+      <b>${esc(p.name)}</b><span>${n ? '已選 '+n+' 科' : p.levels.reduce((a,l)=>a+l.courses.length,0)+' 個單科'}</span></button>`;
+  }).join('');
+  $('progs').querySelectorAll('.prog').forEach(b => b.onclick = () => {
+    state.prog = b.dataset.p; store.set('prog', state.prog); state.activeLv = 3; renderAll();
+  });
+}
+
+function badges(c){
+  let h = '';
+  if(c.badge) h += `<span class="tg">${esc(c.badge)}</span>`;
+  if(c.cert) h += `<span class="tg cert">證照</span>`;
+  if(c.result) h += `<span class="tg res">成果</span>`;
+  return h;
+}
+
+function renderLevels(){
+  const p = P(), s = selSet();
+  const order = [3,2,1,0];
+  $('levels').innerHTML = order.map(li => {
+    const L = p.levels[li];
+    const n = L.courses.filter(c => s.has(li+':'+c.id)).length;
+    return `<div class="lv ${state.activeLv===li?'active':''} ${state.folded && state.activeLv!==li?'collapsed':''}" style="--lc:${LC[li]}" data-lv="${li}">
+      <div class="lv-h"><span class="no">LEVEL ${L.no}</span><span class="nm">${L.icon} ${esc(L.name)}</span>
+        <span class="ct">${n}/${L.courses.length}</span><button class="all" data-all="${li}">${n===L.courses.length?'取消':'全選'}</button></div>
+      <div class="lv-d">${esc(L.desc)}<div class="ex">💡 <b>舉例：</b>${esc(L.example)}</div></div>
+      <div class="lv-b">${L.courses.map(c => `
+        <label class="ci"><input type="checkbox" data-k="${li}:${c.id}" ${s.has(li+':'+c.id)?'checked':''}>
+          <div><div class="t">${esc(c.name)}${badges(c)}</div><div class="s">${esc(c.tag||'')}</div></div></label>`).join('')}
+      </div></div>`;
+  }).join('');
+
+  $('levels').querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => {
+    const s = selSet(); cb.checked ? s.add(cb.dataset.k) : s.delete(cb.dataset.k);
+    state.activeLv = +cb.dataset.k.split(':')[0];
+    saveSel(s); renderProgs(); refreshLevelHeads(); render();
+  });
+  $('levels').querySelectorAll('[data-all]').forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const li = +b.dataset.all, L = P().levels[li], s = selSet();
+    const keys = L.courses.map(c => li+':'+c.id);
+    const allOn = keys.every(k => s.has(k));
+    keys.forEach(k => allOn ? s.delete(k) : s.add(k));
+    state.activeLv = li; saveSel(s); renderAll();
+  });
+  $('levels').querySelectorAll('.lv-h').forEach(h => h.onclick = () => {
+    const li = +h.parentElement.dataset.lv;
+    if(state.folded){ state.activeLv = li; renderLevels(); } else { state.activeLv = li; markActive(); }
+    render();
+  });
+}
+function refreshLevelHeads(){
+  const p = P(), s = selSet();
+  document.querySelectorAll('.lv').forEach(el => {
+    const li = +el.dataset.lv, L = p.levels[li];
+    const n = L.courses.filter(c => s.has(li+':'+c.id)).length;
+    el.querySelector('.ct').textContent = n+'/'+L.courses.length;
+    el.querySelector('.all').textContent = n===L.courses.length ? '取消' : '全選';
+  });
+  markActive();
+}
+function markActive(){ document.querySelectorAll('.lv').forEach(el => el.classList.toggle('active', +el.dataset.lv===state.activeLv)); }
+
+/* ---------- 金字塔 SVG ---------- */
+function pyramidSVG(p, counts, opts){
+  const W = 320, top = 26, bandH = 60, gap = 6, H = top + 4*bandH + 3*gap;
+  const hw = y => 40 + (y - top) * (120 / (H - top));
+  let out = `<svg viewBox="0 0 ${W} ${H+4}" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans TC, Microsoft JhengHei, sans-serif">
+    <defs><linearGradient id="apx" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${LCHEX[3]}" stop-opacity="0"/><stop offset="1" stop-color="${LCHEX[3]}"/></linearGradient></defs>
+    <rect x="${W/2-1.5}" y="0" width="3" height="${top-6}" rx="1.5" fill="url(#apx)"/>`;
+  for(let li = 0; li < 4; li++){
+    const y0 = top + (3-li)*(bandH+gap), y1 = y0 + bandH;
+    const a = hw(y0), b = hw(y1), cx = W/2;
+    const on = opts.full || counts[li] > 0;
+    const fill = on ? LCHEX[li] : '#E8ECF2';
+    const tc = on ? '#fff' : '#A0AEC0';
+    const L = p.levels[li];
+    const act = opts.active === li;
+    out += `<g data-lv="${li}" style="cursor:${opts.interactive?'pointer':'default'}">
+      <path d="M${cx-a} ${y0} L${cx+a} ${y0} L${cx+b} ${y1} L${cx-b} ${y1} Z" fill="${fill}" ${act&&opts.interactive?'stroke="#0F172A" stroke-width="2"':''}/>
+      <text x="${cx}" y="${y0+bandH/2 - (counts[li]?3:-4)}" text-anchor="middle" fill="${tc}" font-size="14" font-weight="700">
+        <tspan font-size="10" opacity=".75">${L.no}</tspan>  ${L.icon} ${esc(L.name)}</text>
+      ${counts[li] ? `<text x="${cx}" y="${y0+bandH/2+15}" text-anchor="middle" fill="#fff" font-size="10" opacity=".95">已規劃 ${counts[li]} 科</text>` : ''}
+    </g>`;
+  }
+  return out + '</svg>';
+}
+
+/* ---------- A4 ---------- */
+function render(){
+  const p = P(), s = selSet(), sheet = $('sheet');
+  const f = {}; FIELDS.forEach(k => f[k] = $('f_'+k).value.trim());
+  const br = f.br !== '' ? BRANCHES[+f.br] : null;
+  const counts = p.levels.map((L,li) => L.courses.filter(c => s.has(li+':'+c.id)).length);
+  const total = counts.reduce((a,b)=>a+b,0);
+  const chosen = p.levels.map((L,li) => L.courses.filter(c => s.has(li+':'+c.id)));
+  const nMods = chosen.flat().reduce((a,c)=>a+c.mods.length,0);
+  const nCert = chosen.flat().filter(c=>c.cert).length;
+  const topLv = [3,2,1,0].find(li => counts[li]) ?? -1;
+  const d = f.date ? f.date.replace(/-/g,'/') : '';
+
+  sheet.style.setProperty('--pc', p.color);
+  sheet.style.setProperty('--pc2', p.color2);
+
+  const pathRows = [3,2,1,0].map(li => {
+    const L = p.levels[li], on = counts[li] > 0 || $('o_full').checked;
+    return `<div class="prow ${on?'':'off'}" style="--lc:${LC[li]}">
+      <div class="lb">LEVEL<span>${L.no}</span></div>
+      <div><div class="tt">${L.icon} ${esc(L.title)}</div><div class="dd">${esc(L.desc)}</div>
+      ${li===topLv ? `<div class="ex">💡 <b>舉例：</b>${esc(L.example)}</div>` : ''}</div></div>`;
+  }).join('');
+
+  const groups = [0,1,2,3].filter(li => chosen[li].length).map(li => {
+    const L = p.levels[li];
+    return `<div class="grp" style="--lc:${LC[li]}">
+      <div class="grp-h"><i>LEVEL ${L.no}</i>${L.icon} ${esc(L.name)}</div>
+      <div class="cards">${chosen[li].map(c => `
+        <div class="card"><div class="n">${esc(c.name)}${c.badge?`<span class="tg">${esc(c.badge)}</span>`:''}</div>
+          ${c.tag?`<div class="tl">${esc(c.tag)}</div>`:''}
+          ${c.focus?`<div class="fr f"><b>學習重點</b>　${esc(c.focus)}</div>`:''}
+          ${c.result?`<div class="fr"><b>實戰成果</b>　${esc(c.result)}</div>`:''}
+          ${c.cert?`<div class="fr"><b>取得證照</b>　${esc(c.cert)}</div>`:''}
+          <div class="ms">${c.mods.map(m => m.t
+            ? `<div class="m"><b>${esc(m.t)}</b><i>${m.i.map(esc).join('・')}</i></div>`
+            : `<div class="m">${m.i.map(esc).join('・')}</div>`).join('')}</div>
+        </div>`).join('')}</div></div>`;
+  }).join('');
+
+  sheet.innerHTML = `
+    <div class="hd">
+      <div class="k">PERSONAL LEARNING PLAN · 專屬學員課程規劃書</div>
+      <div class="who">為 <em>${esc(f.name || '　　　')}</em> 量身打造的學習路徑</div>
+      <div class="pn">${esc(p.name)}<small>${esc(p.en)}</small></div>
+      <div class="sl">${esc(p.slogan)}</div>
+      ${f.goal ? `<div class="goal">🎯 學習目標：${esc(f.goal)}</div>` : ''}
+      <div class="meta">${d?`<b>規劃日期</b>${d}<br>`:''}<b>規劃內容</b>${total} 科・${nMods} 個模組${nCert?`<br><b>證照／證明</b>${nCert} 張`:''}</div>
+    </div>
+    <div class="ov">
+      <div>${pyramidSVG(p, counts, {full:$('o_full').checked})}<div class="cap">${esc(p.pyramidNote)}</div></div>
+      <div class="path"><div class="ph">LEARNING PATH · 四層學習路徑</div>${pathRows}</div>
+    </div>
+    <div class="cs" id="cs">
+      <div class="cs-h"><b>規劃科目</b><span>依學習層級由基礎到進階排列</span></div>
+      ${groups || '<div class="empty">請在左側勾選要規劃給學員的單科</div>'}
+    </div>
+    <div class="pk">${p.perks.map(x => `<div><b>${esc(x[0])}</b>${esc(x[1])}</div>`).join('')}</div>
+    ${$('o_car').checked ? `<div class="cr"><span class="h">職涯出路</span>${p.careers.map(c => `<span class="c">${esc(c[0])} <b>${esc(c[1])}</b></span>`).join('')}<span style="color:#94A3B8">薪資參考：人力銀行，實際依各公司職務而異</span></div>` : ''}
+    <div class="ft">
+      <div>
+        <div class="br">聯成電腦 ${esc(br ? br[0] : '')}</div>
+        ${br ? `<div class="ad">☎ ${esc(br[1])}　📍 ${esc(br[2])}</div>` : '<div class="ad">（請於左側選擇分校）</div>'}
+        ${(f.cons||f.tel||f.line) ? `<div class="cn">課程顧問 <b>${esc(f.cons)}</b>${f.tel?`　📱 ${esc(f.tel)}`:''}${f.line?`　LINE：${esc(f.line)}`:''}</div>` : ''}
+        ${f.note ? `<div class="note">★ ${esc(f.note)}</div>` : ''}
+        <div class="lg">課程內容依班級整體程度調整，詳細課綱以實際授課為準｜完整立案資訊詳見官網 www.lccnet.com.tw</div>
+      </div>
+      ${state.qr ? `<div class="qr"><div>掃描 QR 碼<br>免費諮詢</div><img src="${state.qr}" alt=""></div>` : ''}
+    </div>`;
+
+  fit(sheet);
+  const over = sheet.dataset.over === '1';
+  $('info').innerHTML = `<b>${esc(p.name)}</b>｜已選 ${total} 科 ${over ? '<span class="warn">・內容超出一頁，建議減少科目</span>' : (sheet.dataset.d!=='0' ? '・已自動精簡排版以塞進 A4' : '')}`;
+  document.title = `課程規劃書_${f.name || '學員'}_${p.name.replace(/\s/g,'')}`;
+  scaleStage();
+}
+
+/* 自動縮排：先縮字，再精簡內容，確保一頁 A4 */
+function fit(sheet){
+  const cs = sheet.querySelector('#cs');
+  const over = () => cs.scrollHeight > cs.clientHeight + 1;
+  const setK = k => sheet.style.setProperty('--k', k.toFixed(2));
+  sheet.dataset.over = '0';
+  for(const d of ['0','1','2','3','4','5']){
+    sheet.dataset.d = d;
+    for(let k = 1; k >= (d >= '4' ? 0.7 : 0.82); k -= 0.03){
+      setK(k);
+      if(over()) continue;
+      // 精簡模式下若還有空間，把字放大填滿版面
+      if(d >= '2'){ while(k < 1.3){ setK(k + 0.03); if(over()){ setK(k); break; } k += 0.03; } }
+      return;
+    }
+  }
+  sheet.dataset.over = '1';
+}
+
+function scaleStage(){
+  const main = document.querySelector('.main'), stage = $('stage'), sheet = $('sheet');
+  const w = sheet.offsetWidth, h = sheet.offsetHeight;
+  const avail = Math.min(main.clientWidth - 48, 900);
+  const sc = Math.min(1, avail / w);
+  sheet.style.transform = `scale(${sc})`;
+  stage.style.width = w*sc + 'px'; stage.style.height = h*sc + 'px';
+}
+
+function renderAll(){ document.documentElement.style.setProperty('--accent', P().color); renderProgs(); renderLevels(); render(); }
+
+/* ---------- 按鈕 ---------- */
+$('b_core').onclick = () => {
+  const s = new Set(); P().levels.forEach((L,li) => L.courses.forEach(c => { if(c.core) s.add(li+':'+c.id); }));
+  saveSel(s); renderAll();
+};
+$('b_none').onclick = () => { saveSel(new Set()); renderAll(); };
+$('b_fold').onclick = () => { state.folded = !state.folded; renderLevels(); };
+$('b_print').onclick = () => {
+  if($('sheet').dataset.over === '1' && !confirm('科目太多，部分內容會被截掉，仍要列印嗎？\n（建議取消幾個科目再列印）')) return;
+  window.print();
+};
+$('o_full').onchange = render; $('o_car').onchange = render;
+$('sheet').addEventListener('click', e => {
+  const g = e.target.closest('g[data-lv]'); if(!g) return;
+  state.activeLv = +g.dataset.lv; state.folded = true; renderLevels();
+  document.querySelector(`.lv[data-lv="${state.activeLv}"]`)?.scrollIntoView({behavior:'smooth', block:'start'});
+});
+window.addEventListener('resize', scaleStage);
+window.addEventListener('beforeprint', () => { $('sheet').style.transform = 'none'; });
+window.addEventListener('afterprint', scaleStage);
+
+initForm();
+renderAll();
+document.fonts && document.fonts.ready.then(render);
+</script>
+</body>
+</html>
