@@ -87,7 +87,7 @@ button,input,select{font:inherit;color:inherit}
 .ft .cn b{color:#fff}
 .ft .note{margin-top:1mm;color:#FDE68A}
 .ft .qr{display:flex;align-items:center;gap:2.5mm}
-.ft .qr img{width:19mm;height:19mm;background:#fff;border-radius:1mm;padding:.8mm;object-fit:contain}
+.ft .qr img{width:19mm;height:19mm;image-rendering:pixelated;background:#fff;border-radius:1mm;padding:.8mm;object-fit:contain}
 .ft .qr div{font-size:8pt;text-align:right}
 .ft .lg{font-size:7pt;opacity:.6}
 
@@ -215,7 +215,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="field"><label>LINE ID（選填）</label><input id="f_line"></div>
       <div class="field"><label>分校</label><select id="f_br"></select></div>
       <div class="field full"><label>顧問備註（選填，顯示在頁尾）</label><input id="f_note" placeholder="例：本月報名享早鳥優惠，名額有限"></div>
-      <div class="field full"><label>QR Code 圖片（選填，例如 LINE 或報名連結）</label><input id="f_qr" type="file" accept="image/*"></div>
+      <div class="field full"><label>QR Code 圖片（選填；中壢分校已內建 LINE QR，上傳會取代）</label><input id="f_qr" type="file" accept="image/*"></div>
     </div>
 
     <div class="sec-h">STEP 2 · 快速帶入專班範本（選填）</div>
@@ -396,13 +396,14 @@ function planTitle(list, f){
 }
 function footer(f){
   const br = f.br !== '' ? BRANCHES[+f.br] : null;
+  const qr = state.qr || (br && br[3]) || '';   // 自行上傳的 QR 優先，否則用分校 LINE QR
   return `<div class="ft"><div>
       <div class="br">聯成電腦 ${esc(br ? br[0] : '')}</div>
       ${br ? `<div class="ad">☎ ${esc(br[1])}　📍 ${esc(br[2])}</div>` : '<div class="ad">（請於左側選擇分校）</div>'}
       ${(f.cons||f.tel||f.line) ? `<div class="cn">課程顧問 <b>${esc(f.cons)}</b>${f.tel?`　📱 ${esc(f.tel)}`:''}${f.line?`　LINE：${esc(f.line)}`:''}</div>` : ''}
       ${f.note ? `<div class="note">★ ${esc(f.note)}</div>` : ''}
       <div class="lg">課程內容依班級整體程度調整，詳細課綱以實際授課為準｜完整立案資訊詳見官網 www.lccnet.com.tw</div>
-    </div>${state.qr ? `<div class="qr"><div>掃描 QR 碼<br>免費諮詢</div><img src="${state.qr}" alt=""></div>` : ''}</div>`;
+    </div>${qr ? `<div class="qr"><div>掃描 QR 碼<br>${state.qr ? '免費諮詢' : '加入分校 LINE<br>免費諮詢'}</div><img src="${qr}" alt=""></div>` : ''}</div>`;
 }
 const ccTag = c => { const k = CAT[c.cat]; return `<span class="cc" style="--cc:${k.c}">${k.icon} ${esc(k.name)}</span>`; };
 
