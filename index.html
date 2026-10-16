@@ -53,6 +53,7 @@ button,input,select{font:inherit;color:inherit}
 .dot{display:inline-block;font-size:10.5px;font-weight:700;color:var(--cc);border:1px solid color-mix(in srgb,var(--cc) 40%,#fff);border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
 .tg{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px;background:#FEF3C7;color:#B45309}
 .tg.cert{background:#DCFCE7;color:#15803D}
+.ci .s.cert{color:#15803D;font-weight:500}
 .tg.res{background:#FCE7F3;color:#BE185D}
 .empty-list{color:var(--ink3);font-size:12.5px;padding:10px 4px}
 
@@ -122,13 +123,15 @@ button,input,select{font:inherit;color:inherit}
 .card .tl{font-size:calc(7.2pt*var(--k));color:#64748B;line-height:1.45;margin-top:.4mm}
 .card .fr{font-size:calc(7.2pt*var(--k));line-height:1.45;margin-top:.6mm}
 .card .fr b{color:var(--cc);font-weight:700}
+.card .crt{display:flex;flex-wrap:wrap;gap:.5mm 1.2mm;margin-top:calc(.7mm*var(--k))}
+.card .crt span{font-size:calc(6.5pt*var(--k));font-weight:700;color:#15803D;background:#ECFDF3;border-radius:1mm;padding:0 1.2mm;line-height:1.5}
 .card .ms{margin-top:calc(.8mm*var(--k));display:grid;gap:calc(.5mm*var(--k))}
 .card .m{font-size:calc(7.2pt*var(--k));line-height:1.45;color:#334155}
 .card .m b{font-weight:700;color:#0F172A}
 .card .m b::after{content:"｜";color:#CBD5E1;font-weight:400}
 /* 逐級精簡 */
 .sheet[data-d="1"] .card .tl{display:none}
-.sheet[data-d="2"] .card .tl,.sheet[data-d="2"] .card .fr.c,.sheet[data-d="3"] .card .tl,.sheet[data-d="3"] .card .fr{display:none}
+.sheet[data-d="2"] .card .tl,.sheet[data-d="3"] .card .tl,.sheet[data-d="3"] .card .fr{display:none}
 .sheet[data-d="2"] .card .m b+i,.sheet[data-d="3"] .card .m b+i,.sheet[data-d="4"] .card .m b+i{display:none}
 .sheet[data-d="2"] .card .m b::after,.sheet[data-d="3"] .card .m b::after,.sheet[data-d="4"] .card .m b::after{content:""}
 .sheet[data-d="2"] .card .m b::before,.sheet[data-d="3"] .card .m b::before{content:"▸ ";color:var(--cc)}
@@ -333,7 +336,6 @@ function renderCats(){
 function badges(c){
   let h = '';
   if(c.badge) h += `<span class="tg">${esc(c.badge)}</span>`;
-  if(c.certs && c.certs.length) h += `<span class="tg cert">證照</span>`;
   if(c.result) h += `<span class="tg res">成果</span>`;
   return h;
 }
@@ -348,7 +350,7 @@ function renderList(){
     h += arr.map(c => { const k = CAT[c.cat]; return `
       <label class="ci" style="--cc:${k.c}"><input type="checkbox" data-id="${c.id}" ${state.sel.has(c.id)?'checked':''}>
         <div><div class="t">${state.cat==='all'?`<span class="dot">${k.icon} ${esc(k.name)}</span>`:''}${esc(c.name)}${badges(c)}</div>
-        <div class="s">${esc(c.tag||'')}</div></div></label>`; }).join('');
+        <div class="s">${esc(c.tag||'')}</div>${c.certs&&c.certs.length?`<div class="s cert">📜 可考：${c.certs.map(esc).join('、')}</div>`:''}</div></label>`; }).join('');
   }
   $('list').innerHTML = h || '<div class="empty-list">找不到符合的課程</div>';
   $('list').querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => {
@@ -452,6 +454,11 @@ function renderFront(){
       ${li===topLv ? `<div class="ex">💡 <b>舉例：</b>${esc(L.ex)}</div>` : ''}</div></div>`;
   }).join('');
 
+  const seen = new Set();   // 同一張證照只在第一門出現的課程列出
+  const certLine = c => {
+    const fresh = (c.certs||[]).filter(x => !seen.has(x)); fresh.forEach(x => seen.add(x));
+    return fresh.length ? `<div class="crt">${fresh.map(x => `<span>📜 ${esc(x)}</span>`).join('')}</div>` : '';
+  };
   const groups = [0,1,2,3].filter(li => byLv[li].length).map(li => `
     <div class="grp" style="--lc:${LC[li]}">
       <div class="grp-h"><i>LEVEL ${LV[li].no}</i>${esc(LV[li].name)}</div>
@@ -459,7 +466,7 @@ function renderFront(){
         <div class="card" style="--cc:${CAT[c.cat].c}"><div class="n">${ccTag(c)}${esc(c.name)}${c.badge?`<span class="tgp">${esc(c.badge)}</span>`:''}</div>
           ${c.tag?`<div class="tl">${esc(c.tag)}</div>`:''}
           ${c.result?`<div class="fr"><b>實戰成果</b>　${esc(c.result)}</div>`:''}
-          ${c.certs&&c.certs.length?`<div class="fr c"><b>可考證照</b>　${c.certs.map(esc).join('、')}</div>`:''}
+          ${certLine(c)}
           <div class="ms">${c.mods.map(m => m.t
             ? `<div class="m"><b>${esc(m.t)}</b><i>${m.i.map(esc).join('・')}</i></div>`
             : `<div class="m">${m.i.map(esc).join('・')}</div>`).join('')}</div>
