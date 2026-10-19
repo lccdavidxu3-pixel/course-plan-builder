@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>職涯興趣課程規劃書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FA; --panel:#fff; --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8; --line:#E2E8F0;
+  --accent:#1592D6;
+  --L1:#6CC9C6; --L2:#8FAEEA; --L3:#B69CF2; --L4:#E39A35;
+  --font:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px}
+button,input,select{font:inherit;color:inherit}
+
+/* ---------- 編輯介面 ---------- */
+.app{display:grid;grid-template-columns:460px 1fr;height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:20px 20px 60px}
+.side h1{font-size:19px;margin:0 0 2px;font-weight:900}
+.side .sub{color:var(--ink2);font-size:12.5px;margin:0 0 6px}
+.sec-h{font-size:12px;letter-spacing:.12em;color:var(--ink3);font-weight:700;margin:22px 0 8px;display:flex;align-items:center;gap:8px}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field label{display:block;font-size:12px;color:var(--ink2);margin-bottom:3px}
+.field input,.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff}
+.field.full{grid-column:1/-1}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12.5px;white-space:nowrap}
+.btn:hover{border-color:var(--ink3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.hint{font-size:11.5px;color:var(--ink3);margin-top:5px;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:4px 10px;font-size:12px;cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+.chip b{font-weight:700;font-size:11px;color:var(--ink3)}
+.chip.on{background:var(--cc,#0F172A);border-color:var(--cc,#0F172A);color:#fff}
+.chip.on b{color:rgba(255,255,255,.8)}
+.chip.off{opacity:.45;text-decoration:line-through}
+.search{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin:8px 0}
+.lvh{display:flex;align-items:center;gap:8px;margin:12px 0 4px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--lc) 16%,#fff)}
+.lvh .no{font-size:11px;font-weight:900;color:#fff;background:var(--lc);border-radius:6px;padding:2px 6px}
+.lvh .nm{font-weight:700;flex:1}
+.lvh .ct{font-size:12px;color:var(--ink2)}
+.ci{display:flex;gap:9px;align-items:flex-start;padding:7px 6px;border-radius:8px;cursor:pointer}
+.ci:hover{background:#F8FAFC}
+.ci input{margin-top:3px;accent-color:var(--cc);width:16px;height:16px;flex:none}
+.ci .t{font-weight:600;font-size:13.5px}
+.ci .s{font-size:11.5px;color:var(--ink3);line-height:1.45;margin-top:1px}
+.dot{display:inline-block;font-size:10.5px;font-weight:700;color:var(--cc);border:1px solid color-mix(in srgb,var(--cc) 40%,#fff);border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
+.tg{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px;background:#FEF3C7;color:#B45309}
+.tg.cert{background:#DCFCE7;color:#15803D}
+.ci .s.cert{color:#15803D;font-weight:500}
+.tg.res{background:#FCE7F3;color:#BE185D}
+.empty-list{color:var(--ink3);font-size:12.5px;padding:10px 4px}
+
+.main{overflow:auto;display:flex;flex-direction:column;align-items:center;padding:18px 24px 40px}
+.bar{position:sticky;top:0;z-index:5;width:100%;max-width:900px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);padding:6px 0 12px}
+.bar .info{flex:1;min-width:200px;font-size:12.5px;color:var(--ink2)}
+.bar .warn{color:#B91C1C;font-weight:700}
+.bar label{font-size:12.5px;color:var(--ink2);display:flex;gap:4px;align-items:center}
+.pglabel{font-size:12px;color:var(--ink3);font-weight:700;letter-spacing:.1em;margin:10px 0 6px;align-self:center}
+.stage{position:relative;margin-bottom:10px}
+.stage .sheet{transform-origin:top left;box-shadow:0 10px 40px rgba(15,23,42,.18)}
+
+/* ---------- A4 共用 ---------- */
+.sheet{--k:1;width:210mm;height:297mm;background:#fff;color:#0F172A;overflow:hidden;display:flex;flex-direction:column;
+  font-family:var(--font);-webkit-print-color-adjust:exact;print-color-adjust:exact;position:relative}
+.hd{position:relative;color:#fff;padding:9mm 11mm 7mm;background:linear-gradient(120deg,var(--pc) 0%,color-mix(in srgb,var(--pc) 65%,#0F172A) 100%);overflow:hidden}
+.hd::after{content:"";position:absolute;right:-30mm;top:-30mm;width:90mm;height:90mm;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 70%)}
+.hd .k{font-size:8.5pt;letter-spacing:.28em;opacity:.85;font-weight:700}
+.hd .who{font-size:21pt;font-weight:900;margin:2mm 0 1mm;line-height:1.2;position:relative;z-index:1}
+.hd .who em{font-style:normal;border-bottom:2px solid rgba(255,255,255,.7)}
+.hd .pn{font-size:12.5pt;font-weight:700;position:relative;z-index:1}
+.hd .sl{font-size:9pt;opacity:.9;margin-top:1mm;position:relative;z-index:1}
+.hd .meta{position:absolute;right:11mm;top:9mm;text-align:right;font-size:8.5pt;line-height:1.6;z-index:1}
+.hd .meta b{display:block;font-size:9pt}
+.goal{margin-top:2.5mm;display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:3mm;padding:1mm 3mm;font-size:8.5pt;position:relative;z-index:1}
+.cc{display:inline-block;font-size:calc(6.4pt*var(--k));font-weight:700;color:var(--cc);border:.25mm solid color-mix(in srgb,var(--cc) 45%,#fff);border-radius:1mm;padding:0 1.2mm;margin-right:1.2mm;vertical-align:1px;white-space:nowrap}
+.tgp{display:inline-block;font-size:calc(6.4pt*var(--k));font-weight:700;border-radius:1mm;padding:0 1.2mm;margin-left:1.2mm;vertical-align:1px;background:#FEF3C7;color:#B45309}
+.ft{display:grid;grid-template-columns:1fr auto;gap:4mm;align-items:center;background:#1E293B;color:#E2E8F0;padding:3.5mm 11mm;font-size:8pt;line-height:1.55}
+.ft .br{font-size:10.5pt;font-weight:900;color:#fff}
+.ft .ad{opacity:.8}
+.ft .cn{margin-top:1mm}
+.ft .cn b{color:#fff}
+.ft .note{margin-top:1mm;color:#FDE68A}
+.ft .qr{display:flex;align-items:center;gap:2.5mm}
+.ft .qr img{width:19mm;height:19mm;image-rendering:pixelated;background:#fff;border-radius:1mm;padding:.8mm;object-fit:contain}
+.ft .qr div{font-size:8pt;text-align:right}
+.ft .lg{font-size:7pt;opacity:.6}
+
+/* ---------- 正面 ---------- */
+.ov{display:grid;grid-template-columns:64mm 1fr;gap:5mm;padding:4mm 11mm 1mm;align-items:center}
+.ov svg{width:100%;height:auto;display:block}
+.ov .cap{font-size:7.5pt;color:#64748B;text-align:center;margin-top:1mm}
+.path .ph{font-size:8pt;letter-spacing:.2em;color:#94A3B8;font-weight:700;margin-bottom:1.5mm}
+.prow{display:grid;grid-template-columns:16mm 1fr;gap:2.5mm;padding:1.6mm 0;border-bottom:1px dashed #E2E8F0}
+.prow:last-child{border-bottom:0}
+.prow .lb{font-size:7pt;font-weight:900;color:#fff;background:var(--lc);border-radius:1.5mm;text-align:center;padding:.8mm 0;align-self:start;line-height:1.3}
+.prow .lb span{display:block;font-size:8.5pt}
+.prow.off{opacity:.42}
+.prow.off .lb{background:#CBD5E1}
+.prow.off .dd,.prow.off .cats{display:none}
+.prow .tt{font-size:9pt;font-weight:700}
+.prow .dd{font-size:7.6pt;color:#475569;line-height:1.5}
+.prow .cats{margin-top:.6mm;--k:1}
+.prow .ex{font-size:7.4pt;color:#334155;background:#F1F5F9;border-radius:1.5mm;padding:.8mm 2mm;margin-top:.8mm}
+.cs{flex:1;min-height:0;overflow:hidden;padding:1mm 11mm 0}
+.cs-h{display:flex;align-items:baseline;gap:3mm;margin:1.5mm 0 1.5mm}
+.cs-h b{font-size:11pt;font-weight:900}
+.cs-h span{font-size:8pt;color:#64748B}
+.grp{margin-bottom:calc(2mm*var(--k))}
+.grp-h{display:flex;align-items:center;gap:2mm;font-size:calc(8pt*var(--k));font-weight:900;color:color-mix(in srgb,var(--lc) 70%,#0F172A);margin-bottom:calc(1.2mm*var(--k))}
+.grp-h i{font-style:normal;background:var(--lc);color:#fff;border-radius:1.2mm;padding:.2mm 1.5mm;font-size:calc(7pt*var(--k))}
+.grp-h::after{content:"";flex:1;height:.3mm;background:color-mix(in srgb,var(--lc) 40%,#fff)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:calc(2mm*var(--k)) 3mm}
+.cards>.card:last-child:nth-child(odd){grid-column:1/-1}
+.card{border:.3mm solid #E2E8F0;border-left:1.2mm solid var(--cc);border-radius:1.6mm;padding:calc(1.6mm*var(--k)) 2.4mm;break-inside:avoid}
+.card .n{font-size:calc(9.2pt*var(--k));font-weight:900;line-height:1.35}
+.card .tl{font-size:calc(7.2pt*var(--k));color:#64748B;line-height:1.45;margin-top:.4mm}
+.card .fr{font-size:calc(7.2pt*var(--k));line-height:1.45;margin-top:.6mm}
+.card .fr b{color:var(--cc);font-weight:700}
+.card .crt{display:flex;flex-wrap:wrap;gap:.5mm 1.2mm;margin-top:calc(.7mm*var(--k))}
+.card .crt span{font-size:calc(6.5pt*var(--k));font-weight:700;color:#15803D;background:#ECFDF3;border-radius:1mm;padding:0 1.2mm;line-height:1.5}
+.card .ms{margin-top:calc(.8mm*var(--k));display:grid;gap:calc(.5mm*var(--k))}
+.card .m{font-size:calc(7.2pt*var(--k));line-height:1.45;color:#334155}
+.card .m b{font-weight:700;color:#0F172A}
+.card .m b::after{content:"｜";color:#CBD5E1;font-weight:400}
+/* 逐級精簡 */
+.sheet[data-d="1"] .card .tl{display:none}
+.sheet[data-d="2"] .card .tl,.sheet[data-d="3"] .card .tl,.sheet[data-d="3"] .card .fr{display:none}
+.sheet[data-d="2"] .card .m b+i,.sheet[data-d="3"] .card .m b+i,.sheet[data-d="4"] .card .m b+i{display:none}
+.sheet[data-d="2"] .card .m b::after,.sheet[data-d="3"] .card .m b::after,.sheet[data-d="4"] .card .m b::after{content:""}
+.sheet[data-d="2"] .card .m b::before,.sheet[data-d="3"] .card .m b::before{content:"▸ ";color:var(--cc)}
+.sheet[data-d="2"] .card .ms,.sheet[data-d="3"] .card .ms,.sheet[data-d="4"] .card .ms{display:flex;flex-wrap:wrap;gap:.4mm 2.6mm}
+.sheet[data-d="3"] .prow .dd,.sheet[data-d="3"] .prow .ex,.sheet[data-d="4"] .prow .dd,.sheet[data-d="4"] .prow .ex,.sheet[data-d="5"] .prow .dd,.sheet[data-d="5"] .prow .ex{display:none}
+.sheet[data-d="4"] .card .tl,.sheet[data-d="4"] .card .fr{display:none}
+.sheet[data-d="4"] .cards{grid-template-columns:1fr 1fr 1fr}
+.sheet[data-d="4"] .card .m{font-size:calc(6.6pt*var(--k))}
+.sheet[data-d="5"] .card .tl,.sheet[data-d="5"] .card .fr,.sheet[data-d="5"] .card .ms{display:none}
+.sheet[data-d="5"] .cards{grid-template-columns:repeat(4,1fr)}
+.sheet[data-d="4"] .cards>.card:last-child:nth-child(odd),.sheet[data-d="5"] .cards>.card:last-child:nth-child(odd){grid-column:auto}
+.empty{border:.4mm dashed #CBD5E1;border-radius:2mm;padding:10mm;text-align:center;color:#94A3B8;font-size:10pt}
+.pk{display:grid;grid-template-columns:repeat(4,1fr);gap:2mm;padding:2mm 11mm 3mm}
+.pk div{background:color-mix(in srgb,var(--pc) 8%,#fff);border-radius:1.6mm;padding:1.4mm 2mm;font-size:7pt;color:#475569;line-height:1.4}
+.pk b{display:block;font-size:8pt;color:color-mix(in srgb,var(--pc) 80%,#0F172A)}
+
+/* ---------- 背面 ---------- */
+.hd.sm{padding:6mm 11mm 5mm}
+.hd.sm .who{font-size:15pt;margin:1.5mm 0 .5mm}
+.bk{flex:1;min-height:0;overflow:hidden;padding:4mm 11mm 2mm;--b:1}
+.bh{display:flex;align-items:baseline;gap:3mm;margin:0 0 calc(2mm*var(--b))}
+.bh b{font-size:calc(11pt*var(--b));font-weight:900}
+.bh span{font-size:calc(7.6pt*var(--b));color:#64748B}
+.bsec{margin-bottom:calc(4mm*var(--b))}
+.jobs{display:grid;grid-template-columns:1fr 1fr;gap:calc(2.4mm*var(--b)) 4mm}
+.tk{border:.3mm solid #E2E8F0;border-radius:2mm;padding:calc(2mm*var(--b)) 2.6mm;break-inside:avoid}
+.tk-h{display:flex;align-items:center;gap:1.6mm;font-size:calc(8.6pt*var(--b));font-weight:900;margin-bottom:calc(1.4mm*var(--b))}
+.tk-h i{width:2mm;height:2mm;border-radius:50%;background:var(--tc);flex:none}
+.tk-h span{font-size:calc(6.8pt*var(--b));font-weight:500;color:#94A3B8;margin-left:auto}
+.jr{display:grid;grid-template-columns:30mm 1fr 17mm;gap:1.6mm;align-items:center;font-size:calc(7.2pt*var(--b));line-height:1.3;padding:calc(.55mm*var(--b)) 0}
+.jr .jn{color:#334155}
+.jr .rail{position:relative;height:calc(2.6mm*var(--b));background:#F1F5F9;border-radius:9mm}
+.jr .rng{position:absolute;top:0;bottom:0;border-radius:9mm;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 55%,#fff),var(--tc))}
+.jr .jv{font-weight:700;color:color-mix(in srgb,var(--tc) 80%,#0F172A);text-align:right;white-space:nowrap}
+.jr.txt{grid-template-columns:1fr auto}
+.axis{display:flex;justify-content:space-between;font-size:calc(6pt*var(--b));color:#94A3B8;margin:calc(.6mm*var(--b)) 17mm 0 31.6mm}
+.gigs{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(2.4mm*var(--b)) 3mm}
+.gt{border-radius:2mm;overflow:hidden;border:.3mm solid #E2E8F0;break-inside:avoid}
+.gt-h{background:var(--tc);color:#fff;font-size:calc(7.6pt*var(--b));font-weight:700;padding:calc(1mm*var(--b)) 2mm}
+.gt-r{display:flex;justify-content:space-between;gap:2mm;font-size:calc(7pt*var(--b));padding:calc(.7mm*var(--b)) 2mm;border-top:.2mm solid #F1F5F9}
+.gt-r:nth-child(odd){background:#F8FAFC}
+.gt-r b{color:#0F172A;white-space:nowrap}
+.certs{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(1.8mm*var(--b)) 2.6mm}
+.ce{display:flex;gap:1.8mm;align-items:flex-start;border:.3mm solid #E2E8F0;border-radius:1.8mm;padding:calc(1.4mm*var(--b)) 2mm;break-inside:avoid}
+.ce .ic{flex:none;width:calc(5.4mm*var(--b));height:calc(5.4mm*var(--b));border-radius:50%;display:grid;place-items:center;font-size:calc(8pt*var(--b));background:color-mix(in srgb,var(--tc) 15%,#fff)}
+.ce .cn2{font-size:calc(7.6pt*var(--b));font-weight:700;line-height:1.35}
+.ce .ty{font-size:calc(6.2pt*var(--b));font-weight:700;color:var(--tc);margin-right:1mm}
+.ce .fr2{font-size:calc(6.4pt*var(--b));color:#94A3B8;line-height:1.35;margin-top:.3mm}
+.bk[data-d="1"] .ce .fr2{display:none}
+.j580{border-radius:2.4mm;background:linear-gradient(135deg,#FFF7DB,#FDEBC0);padding:calc(2.6mm*var(--b)) 3mm;break-inside:avoid}
+.j580-h{display:flex;align-items:center;gap:2.4mm;flex-wrap:wrap;margin-bottom:calc(2mm*var(--b))}
+.j580-h .lg5{font-size:calc(15pt*var(--b));font-weight:900;color:#1E63C6;letter-spacing:-.02em;line-height:1}
+.j580-h .lg5 em{font-style:normal;color:#F08A1C}
+.j580-h .t{font-size:calc(9.4pt*var(--b));font-weight:900}
+.j580-h .st{margin-left:auto;display:flex;gap:1.6mm}
+.j580-h .st span{background:#fff;border-radius:1.6mm;padding:calc(.6mm*var(--b)) 2mm;font-size:calc(6.4pt*var(--b));color:#475569;text-align:center;line-height:1.25}
+.j580-h .st b{display:block;font-size:calc(9pt*var(--b));color:#0F172A}
+.steps{display:flex;gap:1mm;margin-bottom:calc(2mm*var(--b))}
+.steps span{flex:1;background:#fff;border-radius:1.4mm;text-align:center;font-size:calc(6.4pt*var(--b));line-height:1.3;padding:calc(.9mm*var(--b)) .5mm;color:#334155;position:relative}
+.steps span b{display:block;font-size:calc(7pt*var(--b));color:#1E63C6}
+.steps span:last-child b{color:#C2410C}
+.j3{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:2mm}
+.j3 > div{background:#1E4E9C;color:#fff;border-radius:1.8mm;padding:calc(1.6mm*var(--b)) 2.2mm;display:grid;grid-template-columns:auto 1fr;gap:0 2mm;align-items:start}
+.j3 .big{font-size:calc(20pt*var(--b));font-weight:900;line-height:1;color:#FDE68A;grid-row:span 2}
+.j3 .tt{font-size:calc(7.8pt*var(--b));font-weight:900;color:#FDE68A}
+.j3 ul{margin:calc(.6mm*var(--b)) 0 0;padding:0;list-style:none;font-size:calc(6.5pt*var(--b));line-height:1.45}
+.j3 li i{font-style:normal;background:#FDE68A;color:#1E4E9C;font-weight:900;border-radius:.8mm;padding:0 .8mm;margin-right:.8mm;font-size:calc(6pt*var(--b))}
+.j3 li small{opacity:.7;font-size:calc(5.8pt*var(--b))}
+.j580.c .steps,.j580.c .j3 ul small{display:none}
+.hl{display:grid;grid-template-columns:calc(62mm*var(--b)) 1fr;gap:4mm;align-items:center;border:.3mm solid #E2E8F0;border-radius:2.4mm;padding:calc(2.4mm*var(--b)) 3mm;background:linear-gradient(135deg,#F8FAFC,#fff)}
+.hl svg{width:100%;height:auto;display:block}
+.hl-code{display:flex;align-items:baseline;gap:2mm;margin-bottom:calc(1.6mm*var(--b))}
+.hl-code b{font-size:calc(17pt*var(--b));font-weight:900;letter-spacing:.12em;line-height:1}
+.hl-code > span{font-size:calc(7.4pt*var(--b));color:#64748B}
+.hl-t{display:grid;gap:calc(1.4mm*var(--b))}
+.ht{border-left:1.2mm solid var(--hc);background:color-mix(in srgb,var(--hc) 9%,#fff);border-radius:1.4mm;padding:calc(1.1mm*var(--b)) 2.2mm}
+.ht-h{font-size:calc(8.4pt*var(--b));font-weight:900;color:color-mix(in srgb,var(--hc) 75%,#0F172A)}
+.ht-h small{font-size:calc(6.4pt*var(--b));font-weight:700;letter-spacing:.08em;opacity:.75;margin-left:1mm}
+.ht-h i{font-style:normal;float:right;font-size:calc(7.4pt*var(--b))}
+.ht p{margin:calc(.3mm*var(--b)) 0 0;font-size:calc(6.8pt*var(--b));line-height:1.45;color:#334155}
+.ht p b{color:#0F172A}
+.bk[data-d="1"] .ht p.jb{display:none}
+.hl-rec{font-size:calc(6.8pt*var(--b));color:#475569;margin-top:calc(1.2mm*var(--b))}
+.hsl{display:grid;grid-template-columns:7.5em 1fr 2em;gap:6px;align-items:center;font-size:12.5px;margin:3px 0}
+.hsl b{display:inline-block;width:1.6em;text-align:center;color:#fff;border-radius:4px;font-size:11px;background:var(--hc)}
+.hsl input{width:100%;accent-color:var(--hc)}
+.hsl output{text-align:right;font-weight:700;color:var(--ink2)}
+.chip .star{color:#F59E0B;font-weight:900}
+.chip.on .star{color:#FDE68A}
+.bnote{font-size:calc(6.6pt*var(--b));color:#94A3B8;margin-top:calc(1.4mm*var(--b))}
+.bk .empty{margin-top:6mm}
+
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff;height:auto}
+  .side,.bar,.pglabel{display:none!important}
+  .app{display:block;height:auto}
+  .main{padding:0;overflow:visible;display:block}
+  .stage{width:auto!important;height:auto!important;margin:0}
+  .stage .sheet{transform:none!important;box-shadow:none}
+  .sheet{break-after:page}
+  body.nofront #st1,body.noback #st2{display:none}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;height:auto}
+  .side{border-right:0;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1>專屬學員課程規劃書</h1>
+    <p class="sub">勾選單科 → 右側即時產出雙面 A4（正面：學習路徑與課程，背面：職缺薪資與證照）。</p>
+
+    <div class="sec-h">STEP 1 · 學員與顧問資料</div>
+    <div class="grid2">
+      <div class="field"><label>學員姓名</label><input id="f_name" placeholder="王小明"></div>
+      <div class="field"><label>規劃日期</label><input id="f_date" type="date"></div>
+      <div class="field full"><label>學習目標（選填，顯示在標題下）</label><input id="f_goal" placeholder="例：半年內轉職 AI 應用工程師"></div>
+      <div class="field full"><label>規劃名稱（選填，留空自動帶入）</label><input id="f_title" placeholder="例：AI 影音創作 × 品牌設計 專屬規劃"></div>
+      <div class="field"><label>課程顧問</label><input id="f_cons" placeholder="顧問姓名"></div>
+      <div class="field"><label>顧問電話</label><input id="f_tel" placeholder="0912-345-678"></div>
+      <div class="field"><label>LINE ID（選填）</label><input id="f_line"></div>
+      <div class="field"><label>分校</label><select id="f_br"></select></div>
+      <div class="field full"><label>顧問備註（選填，顯示在頁尾）</label><input id="f_note" placeholder="例：本月報名享早鳥優惠，名額有限"></div>
+      <div class="field full"><label>QR Code 圖片（選填；中壢分校已內建 LINE QR，上傳會取代）</label><input id="f_qr" type="file" accept="image/*"></div>
+    </div>
+
+    <div class="sec-h">STEP 1.5 · 職涯興趣雷達（何倫碼 RIASEC）</div>
+    <div class="hint" style="margin:0 0 6px">依學員興趣測驗結果填入六型分數（0–10）。背面會畫出雷達圖並分析前三型，STEP 3 的類別會以 ★ 標出推薦方向。</div>
+    <div id="hsliders"></div>
+    <div class="row" style="margin-top:6px"><button class="btn" id="b_hclear">清除分數</button><label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="o_rad" checked> 背面顯示雷達分析</label></div>
+
+    <div class="sec-h">STEP 2 · 快速帶入專班範本（選填）</div>
+    <div class="row">
+      <select id="f_preset" class="search" style="flex:1;margin:0"></select>
+      <button class="btn" id="b_preset">帶入</button>
+    </div>
+    <div class="hint">帶入專班 DM 的主要科目，之後可以再自由增減。帶入會取代目前的勾選。</div>
+
+    <div class="sec-h">STEP 3 · 依類別與難度勾選單科</div>
+    <div class="chips" id="cats"></div>
+    <input class="search" id="q" placeholder="搜尋課程名稱、軟體或證照，例如 Python、Adobe、乙級">
+    <div class="row"><button class="btn" id="b_none">清除全部勾選</button><span class="hint" id="selinfo" style="margin:0"></span></div>
+    <div id="list"></div>
+
+    <div class="sec-h">STEP 4 · 背面設定</div>
+    <div class="hint" style="margin:0 0 6px">職涯方向依勾選的科目自動帶出，點一下可隱藏／顯示。</div>
+    <div class="chips" id="tracks"></div>
+    <div class="row" style="margin-top:8px">
+      <label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="o_gig" checked> 顯示接案行情</label>
+      <label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="o_job" checked> 顯示 JOB580 就業服務（有空間時）</label>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="bar">
+      <div class="info" id="info"></div>
+      <label><input type="checkbox" id="o_full"> 金字塔全彩</label>
+      <select id="o_pages" class="btn"><option value="both">雙面列印</option><option value="front">只印正面</option><option value="back">只印背面</option></select>
+      <button class="btn pri" id="b_print">列印／存 PDF</button>
+    </div>
+    <div class="pglabel">正面 · 學習路徑與規劃科目</div>
+    <div class="stage" id="st1"><div class="sheet" id="sheet"></div></div>
+    <div class="pglabel">背面 · 職缺薪資與可考證照</div>
+    <div class="stage" id="st2"><div class="sheet" id="sheet2"></div></div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script>
+const LCHEX = ['#6CC9C6','#8FAEEA','#B69CF2','#E39A35'];
+const LC = ['var(--L1)','var(--L2)','var(--L3)','var(--L4)'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CAT = Object.fromEntries(CATS.map(c => [c.id, c]));
+const BYID = Object.fromEntries(COURSES.map(c => [c.id, c]));
+const TRACK_COLOR = {agent:'#1592D6',skill:'#1E63C6',ai:'#3B8FD9',java:'#2E9E6B',cloud:'#C8202B',sec:'#B91C1C',aiav:'#C2187A',biz:'#E8701A',anime:'#0FA4C4',gprog:'#7E3FA0',gart:'#5B3FA8',ptc:'#3A8CB5',interior:'#4D9E86',ipas:'#E0A000'};
+
+/* ---------- 何倫碼六型 ---------- */
+const HOLLAND = [
+  {k:'R', en:'REALISTIC', name:'實踐者', c:'#E8743B', cats:['mech','space','cloud'],
+   desc:'重視實際與動手做，喜歡操作工具、機械與設備，偏好具體明確的工作。',
+   pro:'機械與設備操作、工具運用、耐勞與手作能力', job:'機械電子、農林漁牧、運動或建築工程等領域'},
+  {k:'I', en:'INVESTIGATIVE', name:'思考者', c:'#3FA796', cats:['code','ai','sec'],
+   desc:'好奇心強、重視分析，喜歡觀察、思考與研究，透過邏輯解決複雜問題。',
+   pro:'理解與解決科學或數學問題、研究分析資料與理論、抽象思考', job:'理工、生醫或人文科學等領域'},
+  {k:'A', en:'ARTISTIC', name:'創造者', c:'#D99A00', cats:['design','video','game'],
+   desc:'富想像力與創造力，喜歡自由表達與創新，重視美感與個人風格。',
+   pro:'運用想像力產生點子、創新靈活、具文藝與美感天賦', job:'藝術、設計、影音創作等領域'},
+  {k:'S', en:'SOCIAL', name:'助人者', c:'#4A6FA5', cats:['lang','biz'],
+   desc:'友善且樂於助人，喜歡與人互動、教導與協助他人，重視人際關係。',
+   pro:'協調人際、發現並解決他人問題、優秀的溝通與情緒管理', job:'教育、社工心理、醫護、客服等領域'},
+  {k:'E', en:'ENTERPRISING', name:'影響者', c:'#4E9F4E', cats:['biz','video','ai'],
+   desc:'自信有企圖心，喜歡領導、說服與競爭，追求影響力與成就。',
+   pro:'發掘商業與獲利機會、管理與監督、銷售與說服技巧', job:'企管領導、行銷企劃、法律政治等領域'},
+  {k:'C', en:'CONVENTIONAL', name:'組織者', c:'#B03A6A', cats:['sec','cloud','ai'],
+   desc:'重視秩序與規則，做事細心有條理，偏好結構清楚、流程明確的工作。',
+   pro:'數字運算、資料處理與組織規劃、精確的文書行政能力', job:'財務金融、特助秘書、會計、行政等領域'},
+];
+const HS = () => HOLLAND.map(h => state.hs[h.k] || 0);
+const hTop = () => HOLLAND.map(h => ({...h, v: state.hs[h.k] || 0})).filter(h => h.v > 0).sort((a,b) => b.v - a.v).slice(0, 3);
+const hRecCats = () => { const m = {}; hTop().forEach((h, i) => h.cats.forEach(c => m[c] = (m[c]||0) + (3 - i))); return Object.entries(m).sort((a,b) => b[1]-a[1]).map(x => x[0]); };
+
+function radarSVG(){
+  const cx = 110, cy = 112, R = 76, n = 6, vals = HS();
+  const pt = (i, r) => { const a = -Math.PI/2 + i * 2*Math.PI/n; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; };
+  let g = '';
+  for(let l = 5; l >= 1; l--) g += `<polygon points="${[...Array(n)].map((_,i) => pt(i, R*l/5).join(',')).join(' ')}" fill="${l%2?'#F1F5F9':'#fff'}" stroke="#E2E8F0" stroke-width="1"/>`;
+  for(let i = 0; i < n; i++){ const [x,y] = pt(i, R); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E2E8F0"/>`; }
+  g += `<polygon points="${vals.map((v,i) => pt(i, R * v/10).join(',')).join(' ')}" fill="rgba(37,99,235,.2)" stroke="#2563EB" stroke-width="2" stroke-linejoin="round"/>`;
+  vals.forEach((v,i) => { const [x,y] = pt(i, R*v/10); g += `<circle cx="${x}" cy="${y}" r="3.4" fill="${HOLLAND[i].c}" stroke="#fff" stroke-width="1.2"/>`; });
+  HOLLAND.forEach((h,i) => {
+    const [x,y] = pt(i, R + 16), anchor = Math.abs(x-cx) < 4 ? 'middle' : (x > cx ? 'start' : 'end');
+    const yy = i === 0 ? y - 6 : i === 3 ? y + 8 : y;
+    g += `<text x="${x}" y="${yy}" text-anchor="${anchor}" font-size="11" font-weight="900" fill="${h.c}">${h.k} ${h.name}</text>
+      <text x="${x}" y="${yy+11}" text-anchor="${anchor}" font-size="9.5" font-weight="700" fill="#64748B">${vals[i]} 分</text>`;
+  });
+  return `<svg viewBox="-30 -4 280 236" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans TC, Microsoft JhengHei, sans-serif">${g}</svg>`;
+}
+function hollandBlock(f){
+  if(!$('o_rad').checked) return '';
+  const top = hTop(); if(!top.length) return '';
+  const rec = hRecCats().slice(0, 5);
+  return `<div class="bsec"><div class="bh"><b>🧭 職涯興趣雷達分析</b><span>何倫碼（Holland RIASEC）六型興趣・依測驗分數取前三型</span></div>
+    <div class="hl"><div>${radarSVG()}</div><div>
+      <div class="hl-code"><b>${top.map(h => `<span style="color:${h.c}">${h.k}</span>`).join('')}</b><span>${esc(f.name || '學員')} 的興趣代碼：${top.map(h => h.name).join(' ＞ ')}</span></div>
+      <div class="hl-t">${top.map((h,i) => `<div class="ht" style="--hc:${h.c}">
+        <div class="ht-h">${['①','②','③'][i]} ${h.name}<small>${h.en}</small><i>${h.v} 分</i></div>
+        <p>${esc(h.desc)}</p><p><b>優勢：</b>${esc(h.pro)}</p><p class="jb"><b>典型職業：</b>${esc(h.job)}</p></div>`).join('')}</div>
+      <div class="hl-rec">推薦學習方向：${rec.map(k => `<span class="cc" style="--cc:${CAT[k].c};--k:var(--b)">${CAT[k].icon} ${esc(CAT[k].name)}</span>`).join('')}</div>
+    </div></div></div>`;
+}
+function renderSliders(){
+  $('hsliders').innerHTML = HOLLAND.map(h => `<label class="hsl" style="--hc:${h.c}"><span><b>${h.k}</b> ${h.name}</span>
+    <input type="range" min="0" max="10" step="1" value="${state.hs[h.k]||0}" data-k="${h.k}"><output>${state.hs[h.k]||0}</output></label>`).join('');
+  $('hsliders').querySelectorAll('input').forEach(r => r.oninput = () => {
+    state.hs[r.dataset.k] = +r.value; r.nextElementSibling.textContent = r.value;
+    store.set('hs', state.hs); renderCats(); renderBack(); scaleStage();
+  });
+}
+
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('lcplan3_'+k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('lcplan3_'+k, JSON.stringify(v)); }catch(e){} }
+};
+const state = {
+  sel: new Set(store.get('sel', []).filter(id => BYID[id])),
+  cat: 'all', q: '', qr: null,
+  hideTracks: new Set(store.get('hide', [])),
+  preset: store.get('preset', ''),
+};
+state.hs = store.get('hs', {});
+const saveSel = () => store.set('sel', [...state.sel]);
+const chosen = () => COURSES.filter(c => state.sel.has(c.id));
+
+/* ---------- 表單 ---------- */
+const FIELDS = ['name','date','goal','title','cons','tel','line','br','note'];
+const KEEP = ['cons','tel','line','br'];
+function initForm(){
+  $('f_br').innerHTML = '<option value="">（請選擇分校）</option>' + BRANCHES.map((b,i) => `<option value="${i}">${b[0]}　${b[1]}</option>`).join('');
+  $('f_preset').innerHTML = '<option value="">— 選擇專班 DM —</option>' + PRESETS.map(p => `<option value="${p.id}">${esc(p.name)}（${p.ids.length} 科）</option>`).join('');
+  const saved = store.get('form', {});
+  KEEP.forEach(f => { if(saved[f] != null) $('f_'+f).value = saved[f]; });
+  $('f_date').value = new Date().toISOString().slice(0,10);
+  FIELDS.forEach(f => $('f_'+f).addEventListener('input', () => {
+    const o = {}; KEEP.forEach(k => o[k] = $('f_'+k).value); store.set('form', o); render();
+  }));
+  $('f_qr').addEventListener('change', e => {
+    const file = e.target.files[0]; if(!file){ state.qr = null; render(); return; }
+    const r = new FileReader(); r.onload = () => { state.qr = r.result; render(); }; r.readAsDataURL(file);
+  });
+}
+
+/* ---------- 側欄：類別 / 清單 ---------- */
+function matchQ(c){
+  if(!state.q) return true;
+  const hay = [c.name, c.tag, c.result, ...(c.certs||[]), ...c.mods.flatMap(m => [m.t, ...m.i])].join(' ').toLowerCase();
+  return state.q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
+}
+function renderCats(){
+  const cnt = id => COURSES.filter(c => (id==='all' || c.cat===id) && state.sel.has(c.id)).length;
+  const all = [{id:'all', name:'全部', icon:'', c:'#0F172A'}, ...CATS];
+  $('cats').innerHTML = all.map(c => {
+    const n = cnt(c.id);
+    const star = hRecCats().slice(0, 5).includes(c.id) ? '<span class="star">★</span>' : '';
+    return `<button class="chip ${state.cat===c.id?'on':''}" style="--cc:${c.c}" data-c="${c.id}">${star}${c.icon} ${esc(c.name)}${n?` <b>${n}</b>`:''}</button>`;
+  }).join('');
+  $('cats').querySelectorAll('.chip').forEach(b => b.onclick = () => { state.cat = b.dataset.c; renderCats(); renderList(); });
+}
+function badges(c){
+  let h = '';
+  if(c.badge) h += `<span class="tg">${esc(c.badge)}</span>`;
+  if(c.result) h += `<span class="tg res">成果</span>`;
+  return h;
+}
+function renderList(){
+  const items = COURSES.filter(c => (state.cat==='all' || c.cat===state.cat) && matchQ(c));
+  let h = '';
+  for(let lv = 1; lv <= 4; lv++){
+    const L = LV[lv-1], arr = items.filter(c => c.lv === lv);
+    if(!arr.length) continue;
+    const n = arr.filter(c => state.sel.has(c.id)).length;
+    h += `<div class="lvh" style="--lc:${LC[lv-1]}"><span class="no">LEVEL ${L.no}</span><span class="nm">${esc(L.name)}</span><span class="ct">${n}/${arr.length}</span></div>`;
+    h += arr.map(c => { const k = CAT[c.cat]; return `
+      <label class="ci" style="--cc:${k.c}"><input type="checkbox" data-id="${c.id}" ${state.sel.has(c.id)?'checked':''}>
+        <div><div class="t">${state.cat==='all'?`<span class="dot">${k.icon} ${esc(k.name)}</span>`:''}${esc(c.name)}${badges(c)}</div>
+        <div class="s">${esc(c.tag||'')}</div>${c.certs&&c.certs.length?`<div class="s cert">📜 可考：${c.certs.map(esc).join('、')}</div>`:''}</div></label>`; }).join('');
+  }
+  $('list').innerHTML = h || '<div class="empty-list">找不到符合的課程</div>';
+  $('list').querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => {
+    cb.checked ? state.sel.add(cb.dataset.id) : state.sel.delete(cb.dataset.id);
+    saveSel(); refreshCounts(); render();
+  });
+}
+function refreshCounts(){
+  renderCats();
+  document.querySelectorAll('.lvh').forEach(el => {
+    let n = 0, t = 0, x = el.nextElementSibling;
+    while(x && x.classList.contains('ci')){ t++; if(x.querySelector('input').checked) n++; x = x.nextElementSibling; }
+    el.querySelector('.ct').textContent = n+'/'+t;
+  });
+  $('selinfo').textContent = state.sel.size ? `已選 ${state.sel.size} 科` : '';
+}
+
+/* ---------- 職涯方向 ---------- */
+function trackCounts(){
+  const m = {};
+  chosen().forEach(c => c.tr.forEach(t => m[t] = (m[t]||0) + 1));
+  const late = t => ['skill','ipas'].includes(t) ? 1 : 0;   // 通用方向在同分時排後面
+  return Object.entries(m).sort((a,b) => b[1]-a[1] || late(a[0]) - late(b[0]));
+}
+function renderTracks(){
+  const tc = trackCounts();
+  $('tracks').innerHTML = tc.length ? tc.map(([t,n]) => `<button class="chip ${state.hideTracks.has(t)?'off':'on'}" style="--cc:${TRACK_COLOR[t]}" data-t="${t}">${esc(TRACKS[t].name)} <b>${n}</b></button>`).join('')
+    : '<span class="hint" style="margin:0">（先勾選科目）</span>';
+  $('tracks').querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const t = b.dataset.t; state.hideTracks.has(t) ? state.hideTracks.delete(t) : state.hideTracks.add(t);
+    store.set('hide', [...state.hideTracks]); renderTracks(); renderBack();
+  });
+}
+
+/* ---------- 金字塔 ---------- */
+function pyramidSVG(counts, full){
+  const W = 320, top = 26, bandH = 60, gap = 6, H = top + 4*bandH + 3*gap;
+  const hw = y => 40 + (y - top) * (120 / (H - top));
+  let out = `<svg viewBox="0 0 ${W} ${H+4}" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans TC, Microsoft JhengHei, sans-serif">
+    <defs><linearGradient id="apx" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${LCHEX[3]}" stop-opacity="0"/><stop offset="1" stop-color="${LCHEX[3]}"/></linearGradient></defs>
+    <rect x="${W/2-1.5}" y="0" width="3" height="${top-6}" rx="1.5" fill="url(#apx)"/>`;
+  for(let li = 0; li < 4; li++){
+    const y0 = top + (3-li)*(bandH+gap), y1 = y0 + bandH, a = hw(y0), b = hw(y1), cx = W/2;
+    const on = full || counts[li] > 0;
+    out += `<path d="M${cx-a} ${y0} L${cx+a} ${y0} L${cx+b} ${y1} L${cx-b} ${y1} Z" fill="${on ? LCHEX[li] : '#E8ECF2'}"/>
+      <text x="${cx}" y="${y0+bandH/2 - (counts[li]?3:-4)}" text-anchor="middle" fill="${on?'#fff':'#A0AEC0'}" font-size="14" font-weight="700"><tspan font-size="10" opacity=".75">${LV[li].no}</tspan>  ${LV[li].name}</text>
+      ${counts[li] ? `<text x="${cx}" y="${y0+bandH/2+15}" text-anchor="middle" fill="#fff" font-size="10" opacity=".95">已規劃 ${counts[li]} 科</text>` : ''}`;
+  }
+  return out + '</svg>';
+}
+
+/* ---------- 共用 ---------- */
+function form(){ const f = {}; FIELDS.forEach(k => f[k] = $('f_'+k).value.trim()); return f; }
+function themeColor(list){
+  const m = {}; list.forEach(c => m[c.cat] = (m[c.cat]||0) + 1);
+  const top = Object.entries(m).sort((a,b) => b[1]-a[1])[0];
+  return top ? CAT[top[0]].c : '#1592D6';
+}
+function planTitle(list, f){
+  if(f.title) return f.title;
+  const p = PRESETS.find(p => p.id === state.preset);
+  if(p && p.ids.filter(id => state.sel.has(id)).length >= p.ids.length / 2) return p.name + ' 專屬規劃';
+  const m = {}; list.forEach(c => m[c.cat] = (m[c.cat]||0) + 1);
+  const names = Object.entries(m).sort((a,b) => b[1]-a[1]).slice(0,3).map(([k]) => CAT[k].name);
+  return names.length ? names.join(' × ') + ' 專屬規劃' : '專屬課程規劃';
+}
+function footer(f){
+  const br = f.br !== '' ? BRANCHES[+f.br] : null;
+  const qr = state.qr || (br && br[3]) || '';   // 自行上傳的 QR 優先，否則用分校 LINE QR
+  return `<div class="ft"><div>
+      <div class="br">聯成電腦 ${esc(br ? br[0] : '')}</div>
+      ${br ? `<div class="ad">☎ ${esc(br[1])}　📍 ${esc(br[2])}</div>` : '<div class="ad">（請於左側選擇分校）</div>'}
+      ${(f.cons||f.tel||f.line) ? `<div class="cn">課程顧問 <b>${esc(f.cons)}</b>${f.tel?`　📱 ${esc(f.tel)}`:''}${f.line?`　LINE：${esc(f.line)}`:''}</div>` : ''}
+      ${f.note ? `<div class="note">★ ${esc(f.note)}</div>` : ''}
+      <div class="lg">課程內容依班級整體程度調整，詳細課綱以實際授課為準｜完整立案資訊詳見官網 www.lccnet.com.tw</div>
+    </div>${qr ? `<div class="qr"><div>掃描 QR 碼<br>${state.qr ? '免費諮詢' : '加入分校 LINE<br>免費諮詢'}</div><img src="${qr}" alt=""></div>` : ''}</div>`;
+}
+const ccTag = c => { const k = CAT[c.cat]; return `<span class="cc" style="--cc:${k.c}">${k.icon} ${esc(k.name)}</span>`; };
+
+/* ---------- 正面 ---------- */
+function renderFront(){
+  const list = chosen(), f = form(), sheet = $('sheet');
+  const byLv = [1,2,3,4].map(lv => list.filter(c => c.lv === lv).sort((a,b) => CATS.findIndex(x=>x.id===a.cat) - CATS.findIndex(x=>x.id===b.cat)));
+  const counts = byLv.map(a => a.length);
+  const nMods = list.reduce((a,c) => a + c.mods.length, 0);
+  const nCert = new Set(list.flatMap(c => c.certs||[])).size;
+  const topLv = [3,2,1,0].find(i => counts[i]) ?? -1;
+  const full = $('o_full').checked;
+  const pc = themeColor(list);
+  sheet.style.setProperty('--pc', pc);
+  $('sheet2').style.setProperty('--pc', pc);
+  document.documentElement.style.setProperty('--accent', pc);
+
+  const pathRows = [3,2,1,0].map(li => {
+    const L = LV[li], on = counts[li] > 0 || full;
+    const cats = [...new Set(byLv[li].map(c => c.cat))];
+    return `<div class="prow ${on?'':'off'}" style="--lc:${LC[li]}">
+      <div class="lb">LEVEL<span>${L.no}</span></div>
+      <div><div class="tt">${esc(L.title)}</div><div class="dd">${esc(L.desc)}</div>
+      ${cats.length ? `<div class="cats">${cats.map(k => `<span class="cc" style="--cc:${CAT[k].c}">${CAT[k].icon} ${esc(CAT[k].name)}</span>`).join('')}</div>` : ''}
+      ${li===topLv ? `<div class="ex">💡 <b>舉例：</b>${esc(L.ex)}</div>` : ''}</div></div>`;
+  }).join('');
+
+  const seen = new Set();   // 同一張證照只在第一門出現的課程列出
+  const certLine = c => {
+    const fresh = (c.certs||[]).filter(x => !seen.has(x)); fresh.forEach(x => seen.add(x));
+    return fresh.length ? `<div class="crt">${fresh.map(x => `<span>📜 ${esc(x)}</span>`).join('')}</div>` : '';
+  };
+  const groups = [0,1,2,3].filter(li => byLv[li].length).map(li => `
+    <div class="grp" style="--lc:${LC[li]}">
+      <div class="grp-h"><i>LEVEL ${LV[li].no}</i>${esc(LV[li].name)}</div>
+      <div class="cards">${byLv[li].map(c => `
+        <div class="card" style="--cc:${CAT[c.cat].c}"><div class="n">${ccTag(c)}${esc(c.name)}${c.badge?`<span class="tgp">${esc(c.badge)}</span>`:''}</div>
+          ${c.tag?`<div class="tl">${esc(c.tag)}</div>`:''}
+          ${c.result?`<div class="fr"><b>實戰成果</b>　${esc(c.result)}</div>`:''}
+          ${certLine(c)}
+          <div class="ms">${c.mods.map(m => m.t
+            ? `<div class="m"><b>${esc(m.t)}</b><i>${m.i.map(esc).join('・')}</i></div>`
+            : `<div class="m">${m.i.map(esc).join('・')}</div>`).join('')}</div>
+        </div>`).join('')}</div></div>`).join('');
+
+  const d = f.date ? f.date.replace(/-/g,'/') : '';
+  sheet.innerHTML = `
+    <div class="hd">
+      <div class="k">PERSONAL LEARNING PLAN · 專屬學員課程規劃書</div>
+      <div class="who">為 <em>${esc(f.name || '　　　')}</em> 量身打造的學習路徑</div>
+      <div class="pn">${esc(planTitle(list, f))}</div>
+      <div class="sl">AI 工具 × 專業技能 × 工作應用｜依目標與程度，由基礎到高階循序規劃</div>
+      ${f.goal ? `<div class="goal">🎯 學習目標：${esc(f.goal)}</div>` : ''}
+      <div class="meta">${d?`<b>規劃日期</b>${d}<br>`:''}<b>規劃內容</b>${list.length} 科・${nMods} 個模組${nCert?`<br><b>可考證照</b>${nCert} 張`:''}</div>
+    </div>
+    <div class="ov">
+      <div>${pyramidSVG(counts, full)}<div class="cap">越往上，越能用 AI 主導完整專案</div></div>
+      <div class="path"><div class="ph">LEARNING PATH · 四層學習路徑</div>${pathRows}</div>
+    </div>
+    <div class="cs" id="cs">
+      <div class="cs-h"><b>規劃科目</b><span>依課程難度由基礎到進階排列・顏色標籤為課程類別</span></div>
+      ${groups || '<div class="empty">請在左側勾選要規劃給學員的單科</div>'}
+    </div>
+    <div class="pk">
+      <div><b>數發部審核</b>符合《AI產業人才認定指引》</div>
+      <div><b>AI 教練＋真人教練</b>即時解惑・全程陪跑</div>
+      <div><b>JOB580 就業支持</b>8 項求職服務・產學媒合</div>
+      <div><b>24hr 彈性進修</b>實體＋線上＋雲端</div>
+    </div>
+    ${footer(f)}`;
+  fitFront(sheet);
+}
+function fitFront(sheet){
+  const cs = sheet.querySelector('#cs');
+  const over = () => cs.scrollHeight > cs.clientHeight + 1;
+  const setK = k => sheet.style.setProperty('--k', k.toFixed(2));
+  sheet.dataset.over = '0';
+  for(const d of ['0','1','2','3','4','5']){
+    sheet.dataset.d = d;
+    for(let k = 1; k >= (d >= '4' ? 0.7 : 0.82); k -= 0.03){
+      setK(k);
+      if(over()) continue;
+      if(d >= '2'){ while(k < 1.3){ setK(k + 0.03); if(over()){ setK(k); break; } k += 0.03; } }
+      return;
+    }
+  }
+  sheet.dataset.over = '1';
+}
+
+/* ---------- 背面 ---------- */
+const parseK = s => { const m = String(s).replace(/,/g,'').match(/^(\d+(?:\.\d+)?)K\s*[–-]\s*(\d+(?:\.\d+)?)K/); return m ? [+m[1], +m[2]] : null; };
+const certType = s => /技術士|iPAS|APCS/.test(s) ? ['國家證照','🏛️','#B45309']
+  : /Adobe|Autodesk|PTC|Unity|Oracle|RHC|AWS|Cisco|CompTIA|ISC2|ISO|Pearson|ITS|Google|SolidWorks|SketchUp|Clip|LINE|GA /.test(s) ? ['國際／原廠','🌐','#1E63C6']
+  : ['產業認證','🎖️','#15803D'];
+
+function renderBack(){
+  const list = chosen(), f = form(), sheet = $('sheet2');
+  const tracks = trackCounts().filter(([t]) => !state.hideTracks.has(t)).map(([t,n]) => ({id:t, n, ...TRACKS[t]}));
+  const certMap = new Map();
+  list.forEach(c => (c.certs||[]).forEach(x => { if(!certMap.has(x)) certMap.set(x, []); certMap.get(x).push(c.name); }));
+  const certs = [...certMap.entries()].sort((a,b) => { const o = ['國家證照','國際／原廠','產業認證']; return o.indexOf(certType(a[0])[0]) - o.indexOf(certType(b[0])[0]); });
+
+  const job580 = mode => !mode ? '' : `
+    <div class="bsec j580 ${mode === 1 ? 'c' : ''}">
+      <div class="j580-h"><span class="lg5">JOB<em>580</em></span><span class="t">AI 就業＋　找工作我幫你</span>
+        <span class="st"><span><b>10000+</b>實戰培訓課程</span><span><b>6000+</b>企業聯合徵才</span><span><b>10000+</b>學員成功就業</span></span></div>
+      <div class="steps">${[['資格審核','職訓補助'],['職能培訓','實務應用'],['履歷健診','面試模擬'],['課中就業','機會通知'],['AI 就業媒合','徵才見面會'],['高薪獵頭','職缺引薦'],['成功搶進','知名企業']].map(x => `<span><b>${x[0]}</b>${x[1]}</span>`).join('')}</div>
+      <div class="j3">
+        <div><span class="big">5</span><span class="tt">大教學系統</span><ul>
+          <li>實體教學系統 <small>課程程度分班</small></li><li>直播教學系統 <small>個人化排課即時互動</small></li><li>錄播教學系統 <small>24 小時隨時學</small></li><li>學習監控系統 <small>課後問卷優化體驗</small></li><li>真人教練系統 <small>線上線下即時解惑</small></li></ul></div>
+        <div><span class="big">8</span><span class="tt">項求職服務</span><ul>
+          <li><i>訓前</i>專業顧問輔導・短工轉介媒合</li><li><i>訓中</i>至少 3 張證照、3 件作品・專題成果發表會</li><li><i>訓後</i>個人履歷健檢優化・聯合徵才博覽會・百大企業職涯引薦・產學專班保送面試</li></ul></div>
+        <div><span class="big">0</span><span class="tt">距離 AI 就業資源</span><ul>
+          <li>AI 跨領域工作術・AI 自傳生成</li><li>AI 媒合職缺・AI 求職追蹤</li><li>AI 能力指標雷達圖 <small>（即將上線）</small></li><li>AI 求職工具・AI 線上面試室 <small>（即將上線）</small></li></ul></div>
+      </div>
+    </div>`;
+
+  const draw = (maxTracks, showGigs, jobMode) => {
+    const tk = tracks.slice(0, maxTracks);
+    const nums = tk.flatMap(t => t.jobs.map(j => parseK(j[1])).filter(Boolean)).flat();
+    const lo = nums.length ? Math.floor(Math.min(...nums)/10)*10 : 30, hi = nums.length ? Math.ceil(Math.max(...nums)/10)*10 : 100;
+    const pos = v => ((v - lo) / (hi - lo) * 100).toFixed(1);
+    const jobs = tk.map(t => `
+      <div class="tk" style="--tc:${TRACK_COLOR[t.id]}">
+        <div class="tk-h"><i></i>${esc(t.name)}<span>對應 ${t.n} 科</span></div>
+        ${t.jobs.map(j => { const r = parseK(j[1]); return r
+          ? `<div class="jr"><span class="jn">${esc(j[0])}</span><span class="rail"><span class="rng" style="left:${pos(r[0])}%;width:${(pos(r[1])-pos(r[0])).toFixed(1)}%"></span></span><span class="jv">${esc(j[1])}</span></div>`
+          : `<div class="jr txt"><span class="jn">${esc(j[0])}</span><span class="jv">${esc(j[1])}</span></div>`; }).join('')}
+      </div>`).join('');
+    const gigTracks = showGigs ? tk.filter(t => t.gigs) : [];
+    const gigs = gigTracks.map(t => `
+      <div class="gt" style="--tc:${TRACK_COLOR[t.id]}"><div class="gt-h">${esc(t.name)}</div>
+        ${t.gigs.map(g => `<div class="gt-r"><span>${esc(g[0])}</span><b>${esc(g[1])}</b></div>`).join('')}</div>`).join('');
+    const ce = certs.map(([x, from]) => { const [ty, ic, col] = certType(x); return `
+      <div class="ce" style="--tc:${col}"><span class="ic">${ic}</span><div>
+        <div class="cn2"><span class="ty">${ty}</span>${esc(x)}</div>
+        <div class="fr2">對應：${from.map(esc).join('、')}</div></div></div>`; }).join('');
+    return `
+      ${hollandBlock(f)}
+      ${tk.length ? `<div class="bsec"><div class="bh"><b>💼 可能職缺與月薪範圍</b><span>依規劃科目對應的職涯方向${tracks.length > tk.length ? `（僅列前 ${tk.length} 個方向）` : ''}</span></div>
+        <div class="jobs">${jobs}</div></div>` : ''}
+      ${gigs ? `<div class="bsec"><div class="bh"><b>🧾 個人接案行情</b><span>斜槓兼職、SOHO 接案參考</span></div><div class="gigs">${gigs}</div></div>` : ''}
+      ${ce ? `<div class="bsec"><div class="bh"><b>📜 可考取證照與認證</b><span>共 ${certs.length} 張・依選修科目另頒發聯成結訓合格證書</span></div><div class="certs">${ce}</div></div>` : ''}
+      ${(tk.length || ce) ? job580(jobMode) : ''}
+      ${(tk.length || ce) ? `<div class="bnote">＊薪資與接案參考來源：人力銀行與公開接案平台，本表僅供參考，實際金額依職務待遇、案件內容、開發難度與經驗條件而異。證照考試依各發證單位公告為準。</div>`
+        : '<div class="empty">勾選科目後，這裡會列出對應的職缺薪資與可考證照</div>'}`;
+  };
+
+  const d = f.date ? f.date.replace(/-/g,'/') : '';
+  sheet.innerHTML = `
+    <div class="hd sm">
+      <div class="k">CAREER INTEREST & CERTIFICATION MAP · 職涯興趣與證照地圖</div>
+      <div class="who">學完這些課程，<em>${esc(f.name || '你')}</em> 可以往這些方向發展</div>
+      <div class="sl">${esc(planTitle(list, f))}${d ? `　|　${d}` : ''}</div>
+    </div>
+    <div class="bk" id="bk"></div>
+    ${footer(f)}`;
+  fitBack(sheet.querySelector('#bk'), draw, tracks.length);
+}
+function fitBack(bk, draw, nTracks){
+  const over = () => bk.scrollHeight > bk.clientHeight + 1;
+  const gig = $('o_gig').checked, job = $('o_job').checked;
+  // 優先：職缺＋證照必留；有空間再放接案行情與 JOB580（JOB580 只在不需縮字時放入，避免擠壓主要內容）
+  const plan = [];   // [方向數, 接案, JOB580 模式(0 無/1 精簡/2 完整), 最小字級]
+  const T = Math.max(1, Math.min(nTracks, 8));
+  if(gig && job) plan.push([T, true, 2, .92], [T, true, 1, .92]);
+  if(gig) plan.push([T, true, 0, .78]);
+  if(job) plan.push([T, false, 2, .92], [T, false, 1, .92]);
+  for(let m = T; m >= 1; m--) plan.push([m, false, 0, .78]);
+  bk.dataset.over = '0';
+  for(const [m, g, j, minB] of plan){
+    bk.innerHTML = draw(m, g, j);
+    for(const d of ['0','1']){
+      bk.dataset.d = d;
+      for(let b = 1; b >= minB - 1e-9; b -= 0.04){
+        bk.style.setProperty('--b', b.toFixed(2));
+        if(over()) continue;
+        // 內容少時放大填滿版面
+        if(b === 1){ let g = 1; while(g < 1.3){ bk.style.setProperty('--b', (g + 0.04).toFixed(2)); if(over()){ bk.style.setProperty('--b', g.toFixed(2)); break; } g += 0.04; } }
+        return;
+      }
+    }
+  }
+  bk.dataset.over = '1';
+}
+
+/* ---------- 版面 ---------- */
+function scaleStage(){
+  const main = document.querySelector('.main');
+  const avail = Math.min(main.clientWidth - 48, 900);
+  [['st1','sheet'],['st2','sheet2']].forEach(([s, id]) => {
+    const st = $(s), sh = $(id), w = sh.offsetWidth, h = sh.offsetHeight, sc = Math.min(1, avail / w);
+    sh.style.transform = `scale(${sc})`; st.style.width = w*sc + 'px'; st.style.height = h*sc + 'px';
+  });
+}
+function render(){
+  renderFront(); renderTracks(); renderBack();
+  const f = form(), over = $('sheet').dataset.over === '1';
+  $('info').innerHTML = `已選 <b>${state.sel.size}</b> 科${over ? ' <span class="warn">・正面內容超出一頁，建議減少科目</span>' : ''}`;
+  $('selinfo').textContent = state.sel.size ? `已選 ${state.sel.size} 科` : '';
+  document.title = `課程規劃書_${f.name || '學員'}`;
+  scaleStage();
+}
+
+/* ---------- 事件 ---------- */
+$('q').addEventListener('input', e => { state.q = e.target.value.trim(); renderList(); });
+$('b_none').onclick = () => { state.sel.clear(); state.preset = ''; store.set('preset',''); saveSel(); renderCats(); renderList(); render(); };
+$('b_preset').onclick = () => {
+  const p = PRESETS.find(p => p.id === $('f_preset').value); if(!p) return;
+  if(state.sel.size && !confirm(`帶入「${p.name}」會取代目前勾選的 ${state.sel.size} 科，確定嗎？`)) return;
+  state.sel = new Set(p.ids); state.preset = p.id; store.set('preset', p.id);
+  state.cat = 'all'; saveSel(); renderCats(); renderList(); render();
+};
+$('o_full').onchange = render;
+$('o_gig').onchange = renderBack;
+$('o_job').onchange = renderBack;
+$('o_rad').onchange = renderBack;
+$('b_hclear').onclick = () => { state.hs = {}; store.set('hs', {}); renderSliders(); renderCats(); renderBack(); };
+$('b_print').onclick = () => {
+  if($('sheet').dataset.over === '1' && !confirm('科目太多，正面部分內容會被截掉，仍要列印嗎？\n（建議取消幾個科目再列印）')) return;
+  const p = $('o_pages').value;
+  document.body.classList.toggle('nofront', p === 'back');
+  document.body.classList.toggle('noback', p === 'front');
+  if(p === 'both') alert('雙面列印提醒：請在列印視窗選擇「雙面列印（長邊翻轉）」。');
+  window.print();
+};
+window.addEventListener('resize', scaleStage);
+window.addEventListener('beforeprint', () => { $('sheet').style.transform = 'none'; $('sheet2').style.transform = 'none'; });
+window.addEventListener('afterprint', scaleStage);
+
+initForm();
+renderSliders();
+if(state.preset) $('f_preset').value = state.preset;
+renderCats(); renderList(); render();
+document.fonts && document.fonts.ready.then(render);
+</script>
+</body>
+</html>
