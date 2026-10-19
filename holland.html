@@ -262,7 +262,11 @@ button,input,select{font:inherit;color:inherit}
     </div>
 
     <div class="sec-h">STEP 1.5 · 職涯興趣雷達（何倫碼 RIASEC）</div>
-    <div class="hint" style="margin:0 0 6px">依學員興趣測驗結果填入六型分數（0–10）。背面會畫出雷達圖並分析前三型，STEP 3 的類別會以 ★ 標出推薦方向。</div>
+    <div class="row" style="margin:0 0 6px;gap:14px">
+      <label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="radio" name="hmode" value="auto" id="hm_auto"> 依勾選課程自動計算</label>
+      <label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="radio" name="hmode" value="manual" id="hm_man"> 手動輸入測驗分數</label>
+    </div>
+    <div class="hint" id="hhint" style="margin:0 0 6px"></div>
     <div id="hsliders"></div>
     <div class="row" style="margin-top:6px"><button class="btn" id="b_hclear">清除分數</button><label class="hint" style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="o_rad" checked> 背面顯示雷達分析</label></div>
 
@@ -333,8 +337,33 @@ const HOLLAND = [
    desc:'重視秩序與規則，做事細心有條理，偏好結構清楚、流程明確的工作。',
    pro:'數字運算、資料處理與組織規劃、精確的文書行政能力', job:'財務金融、特助秘書、會計、行政等領域'},
 ];
-const HS = () => HOLLAND.map(h => state.hs[h.k] || 0);
-const hTop = () => HOLLAND.map(h => ({...h, v: state.hs[h.k] || 0})).filter(h => h.v > 0).sort((a,b) => b.v - a.v).slice(0, 3);
+/* 每個類別對應的六型比重；個別課程可覆寫 */
+const CAT_RIASEC = {
+  ai:{I:2,E:1,C:1}, code:{I:3,R:1,C:1}, cloud:{R:2,I:2,C:2}, sec:{I:2,C:3,R:1},
+  video:{A:3,E:1,S:1}, design:{A:3,E:1}, game:{A:2,I:1,R:1}, mech:{R:3,I:1,C:1},
+  space:{A:2,R:2,S:1}, biz:{E:3,S:2,C:1}, lang:{S:3,E:1},
+};
+const COURSE_RIASEC = {
+  nego:{E:3,S:1}, comm:{S:3,E:1}, timemgmt:{C:3}, notion:{C:2,E:1}, p_job:{C:2,E:1}, p_eff:{C:2,E:1},
+  p_mkt:{E:3,A:1}, social:{E:2,A:1,S:1}, p_life:{S:1,A:1}, ipas_carbon:{C:2,I:1}, aioffice:{C:2,E:1},
+  solpm:{E:2,I:1,C:1}, soldesign:{I:2,E:1}, techcert:{R:2,C:2}, director:{A:2,E:1,S:1},
+  aigig:{A:2,E:2}, n8n:{A:2,E:1,I:1}, bizflow:{A:2,E:1,I:1}, acg:{A:2,E:1}, iso27001:{C:3,E:1}, cissp:{C:2,E:1,I:1},
+  print:{C:2,A:1}, canva:{A:2,E:1},
+};
+const isAuto = () => state.hmode !== 'manual';
+function autoScores(){
+  const raw = {R:0,I:0,A:0,S:0,E:0,C:0};
+  chosen().forEach(c => {
+    const w = COURSE_RIASEC[c.id] || CAT_RIASEC[c.cat] || {}, lvW = 1 + 0.25 * (c.lv - 1);
+    for(const k in w) raw[k] += w[k] * lvW;
+  });
+  const mx = Math.max(...Object.values(raw));
+  const out = {}; for(const k in raw) out[k] = mx ? Math.round(raw[k] / mx * 10) : 0;
+  return out;
+}
+const scores = () => isAuto() ? autoScores() : state.hs;
+const HS = () => HOLLAND.map(h => scores()[h.k] || 0);
+const hTop = () => HOLLAND.map(h => ({...h, v: scores()[h.k] || 0})).filter(h => h.v > 0).sort((a,b) => b.v - a.v).slice(0, 3);
 const hRecCats = () => { const m = {}; hTop().forEach((h, i) => h.cats.forEach(c => m[c] = (m[c]||0) + (3 - i))); return Object.entries(m).sort((a,b) => b[1]-a[1]).map(x => x[0]); };
 
 function radarSVG(){
@@ -356,19 +385,27 @@ function radarSVG(){
 function hollandBlock(f){
   if(!$('o_rad').checked) return '';
   const top = hTop(); if(!top.length) return '';
-  const rec = hRecCats().slice(0, 5);
-  return `<div class="bsec"><div class="bh"><b>🧭 職涯興趣雷達分析</b><span>何倫碼（Holland RIASEC）六型興趣・依測驗分數取前三型</span></div>
+  const selCats = new Set(chosen().map(c => c.cat));
+  const rec = isAuto() ? hRecCats().filter(k => !selCats.has(k)).slice(0, 4) : hRecCats().slice(0, 5);
+  const recLabel = isAuto() ? '同類型特質可延伸學習' : '推薦學習方向';
+  return `<div class="bsec"><div class="bh"><b>🧭 職涯興趣雷達分析</b><span>何倫碼（Holland RIASEC）六型興趣・${isAuto() ? '依規劃科目的能力屬性推算' : '依興趣測驗分數'}，取前三型</span></div>
     <div class="hl"><div>${radarSVG()}</div><div>
       <div class="hl-code"><b>${top.map(h => `<span style="color:${h.c}">${h.k}</span>`).join('')}</b><span>${esc(f.name || '學員')} 的興趣代碼：${top.map(h => h.name).join(' ＞ ')}</span></div>
       <div class="hl-t">${top.map((h,i) => `<div class="ht" style="--hc:${h.c}">
         <div class="ht-h">${['①','②','③'][i]} ${h.name}<small>${h.en}</small><i>${h.v} 分</i></div>
         <p>${esc(h.desc)}</p><p><b>優勢：</b>${esc(h.pro)}</p><p class="jb"><b>典型職業：</b>${esc(h.job)}</p></div>`).join('')}</div>
-      <div class="hl-rec">推薦學習方向：${rec.map(k => `<span class="cc" style="--cc:${CAT[k].c};--k:var(--b)">${CAT[k].icon} ${esc(CAT[k].name)}</span>`).join('')}</div>
+      ${rec.length ? `<div class="hl-rec">${recLabel}：${rec.map(k => `<span class="cc" style="--cc:${CAT[k].c};--k:var(--b)">${CAT[k].icon} ${esc(CAT[k].name)}</span>`).join('')}</div>` : ''}
     </div></div></div>`;
 }
 function renderSliders(){
+  const sc = scores(), auto = isAuto();
+  $('hm_auto').checked = auto; $('hm_man').checked = !auto;
+  $('b_hclear').style.display = auto ? 'none' : '';
+  $('hhint').textContent = auto
+    ? '依勾選課程的類別與難度自動推算六型分數（最高者為 10 分），會隨勾選即時更新。'
+    : '依學員興趣測驗結果填入六型分數（0–10）。STEP 3 的類別會以 ★ 標出推薦方向。';
   $('hsliders').innerHTML = HOLLAND.map(h => `<label class="hsl" style="--hc:${h.c}"><span><b>${h.k}</b> ${h.name}</span>
-    <input type="range" min="0" max="10" step="1" value="${state.hs[h.k]||0}" data-k="${h.k}"><output>${state.hs[h.k]||0}</output></label>`).join('');
+    <input type="range" min="0" max="10" step="1" value="${sc[h.k]||0}" data-k="${h.k}" ${auto?'disabled':''}><output>${sc[h.k]||0}</output></label>`).join('');
   $('hsliders').querySelectorAll('input').forEach(r => r.oninput = () => {
     state.hs[r.dataset.k] = +r.value; r.nextElementSibling.textContent = r.value;
     store.set('hs', state.hs); renderCats(); renderBack(); scaleStage();
@@ -386,6 +423,7 @@ const state = {
   preset: store.get('preset', ''),
 };
 state.hs = store.get('hs', {});
+state.hmode = store.get('hmode', 'auto');
 const saveSel = () => store.set('sel', [...state.sel]);
 const chosen = () => COURSES.filter(c => state.sel.has(c.id));
 
@@ -418,7 +456,7 @@ function renderCats(){
   const all = [{id:'all', name:'全部', icon:'', c:'#0F172A'}, ...CATS];
   $('cats').innerHTML = all.map(c => {
     const n = cnt(c.id);
-    const star = hRecCats().slice(0, 5).includes(c.id) ? '<span class="star">★</span>' : '';
+    const star = !isAuto() && hRecCats().slice(0, 5).includes(c.id) ? '<span class="star">★</span>' : '';
     return `<button class="chip ${state.cat===c.id?'on':''}" style="--cc:${c.c}" data-c="${c.id}">${star}${c.icon} ${esc(c.name)}${n?` <b>${n}</b>`:''}</button>`;
   }).join('');
   $('cats').querySelectorAll('.chip').forEach(b => b.onclick = () => { state.cat = b.dataset.c; renderCats(); renderList(); });
@@ -714,6 +752,7 @@ function scaleStage(){
 }
 function render(){
   renderFront(); renderTracks(); renderBack();
+  if(isAuto()) renderSliders();
   const f = form(), over = $('sheet').dataset.over === '1';
   $('info').innerHTML = `已選 <b>${state.sel.size}</b> 科${over ? ' <span class="warn">・正面內容超出一頁，建議減少科目</span>' : ''}`;
   $('selinfo').textContent = state.sel.size ? `已選 ${state.sel.size} 科` : '';
@@ -734,6 +773,9 @@ $('o_full').onchange = render;
 $('o_gig').onchange = renderBack;
 $('o_job').onchange = renderBack;
 $('o_rad').onchange = renderBack;
+document.querySelectorAll('input[name=hmode]').forEach(r => r.onchange = () => {
+  state.hmode = r.value; store.set('hmode', state.hmode); renderSliders(); renderCats(); renderBack(); scaleStage();
+});
 $('b_hclear').onclick = () => { state.hs = {}; store.set('hs', {}); renderSliders(); renderCats(); renderBack(); };
 $('b_print').onclick = () => {
   if($('sheet').dataset.over === '1' && !confirm('科目太多，正面部分內容會被截掉，仍要列印嗎？\n（建議取消幾個科目再列印）')) return;
