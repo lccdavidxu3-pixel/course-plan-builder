@@ -402,11 +402,16 @@ function renderSliders(){
   $('hm_auto').checked = auto; $('hm_man').checked = !auto;
   $('b_hclear').style.display = auto ? 'none' : '';
   $('hhint').textContent = auto
-    ? '依勾選課程的類別與難度自動推算六型分數（最高者為 10 分），會隨勾選即時更新。'
+    ? '依勾選課程的類別與難度自動推算六型分數（最高者為 10 分），會隨勾選即時更新。拖動滑桿即可微調。'
     : '依學員興趣測驗結果填入六型分數（0–10）。STEP 3 的類別會以 ★ 標出推薦方向。';
   $('hsliders').innerHTML = HOLLAND.map(h => `<label class="hsl" style="--hc:${h.c}"><span><b>${h.k}</b> ${h.name}</span>
-    <input type="range" min="0" max="10" step="1" value="${sc[h.k]||0}" data-k="${h.k}" ${auto?'disabled':''}><output>${sc[h.k]||0}</output></label>`).join('');
+    <input type="range" min="0" max="10" step="1" value="${sc[h.k]||0}" data-k="${h.k}"><output>${sc[h.k]||0}</output></label>`).join('');
   $('hsliders').querySelectorAll('input').forEach(r => r.oninput = () => {
+    if(isAuto()){   // 自動模式下拖動：以目前算出的分數為起點，轉為手動微調
+      state.hs = {...autoScores()}; state.hmode = 'manual'; store.set('hmode', 'manual');
+      $('hm_auto').checked = false; $('hm_man').checked = true; $('b_hclear').style.display = '';
+      $('hhint').textContent = '已改為手動微調（以自動計算的分數為起點）。要回到依課程計算，請點「依勾選課程自動計算」。';
+    }
     state.hs[r.dataset.k] = +r.value; r.nextElementSibling.textContent = r.value;
     store.set('hs', state.hs); renderCats(); renderBack(); scaleStage();
   });
