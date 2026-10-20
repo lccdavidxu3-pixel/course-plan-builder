@@ -42,6 +42,10 @@ button,input,select{font:inherit;color:inherit}
 .chip.off{opacity:.45;text-decoration:line-through}
 .subchips{display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%;margin-top:4px;padding:6px 8px;background:#F8FAFC;border-radius:8px}
 .subchips span{font-size:11.5px;color:var(--ink3);font-weight:700}
+.ci.lock{opacity:.45;cursor:not-allowed;background:#F1F5F9}
+.ci.lock .t{text-decoration:line-through;text-decoration-color:#94A3B8}
+.ci .s.own{color:#B91C1C;font-weight:700;text-decoration:none}
+.ci .s.own2{color:#2563EB}
 .chip.sm{padding:3px 9px;font-size:11.5px}
 .search{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin:8px 0}
 .lvh{display:flex;align-items:center;gap:8px;margin:12px 0 4px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--lc) 16%,#fff)}
@@ -319,7 +323,7 @@ button,input,select{font:inherit;color:inherit}
     </div>
     <div class="hint">帶入專班 DM 的主要科目，之後可以再自由增減。帶入會取代目前的勾選。</div>
 
-    <div class="sec-h">STEP 3 · 依 DM 分類與難度勾選單科</div>
+    <div class="sec-h">STEP 3 · 依專班 DM 勾選單科</div>
     <div class="chips" id="cats"></div>
     <input class="search" id="q" placeholder="搜尋課程名稱、軟體或證照，例如 Python、Adobe、乙級">
     <div class="row"><button class="btn" id="b_none">清除全部勾選</button><span class="hint" id="selinfo" style="margin:0"></span></div>
@@ -538,7 +542,7 @@ function drawQuiz(){
       <div class="qact"><button class="qbtn" id="q_apply">帶入推薦課程並產生規劃書</button><button class="qbtn ghost" id="q_close">只看結果，自己選課</button><button class="qbtn ghost" id="q_redo">重新測驗</button></div>`;
     $('q_apply').onclick = () => {
       if(state.sel.size && !confirm(`會取代目前勾選的 ${state.sel.size} 科，確定嗎？`)) return;
-      state.sel = new Set(rec); state.preset = ''; store.set('preset', ''); state.cat = 'all';
+      state.sel = new Set(rec); state.from = {}; setOwner(rec, ''); state.preset = ''; store.set('preset', ''); state.cat = 'all';
       saveSel(); renderCats(); renderList(); render(); closeQuiz();
     };
     $('q_close').onclick = closeQuiz;
@@ -553,10 +557,11 @@ const store = {
 };
 const state = {
   sel: new Set(store.get('sel', []).filter(id => BYID[id])),
-  cat: 'all', dm: '', q: '', qr: null,
+  cat: 'all', q: '', qr: null,
   hideTracks: new Set(store.get('hide', [])),
   preset: store.get('preset', ''),
 };
+state.from = store.get('from', {});
 state.quiz = store.get('quiz', null);
 
 const saveSel = () => store.set('sel', [...state.sel]);
@@ -596,41 +601,33 @@ function matchQ(c){
   const hay = [c.name, c.tag, c.result, ...(c.certs||[]), ...c.mods.flatMap(m => [m.t, ...m.i])].join(' ').toLowerCase();
   return state.q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
 }
-/* ---------- DM 分類篩選 ---------- */
-const PBYID = Object.fromEntries(PRESETS.map(p => [p.id, p]));
-const GSET = {};
-DMGROUPS.forEach(g => {
-  GSET[g.id] = new Set(g.cat ? COURSES.filter(c => c.cat === g.cat).map(c => c.id)
-    : g.presets.flatMap(pid => PBYID[pid].ids).filter(id => BYID[id] && BYID[id].cat !== 'lang'));
-});
+/* ---------- 直接依 DM 分類（外語另列） ---------- */
+const DMS = [...PRESETS.map(p => ({id:p.id, name:p.name, ids:p.ids.filter(id => BYID[id] && BYID[id].cat !== 'lang')})),
+  {id:'lang', name:'外語', ids:COURSES.filter(c => c.cat === 'lang').map(c => c.id)}];
+const DMBYID = Object.fromEntries(DMS.map(d => [d.id, d]));
+const DMCOLOR = {agent:'#1592D6',skill:'#1E63C6',ai:'#3B8FD9',sec:'#C8202B',cloud:'#0891B2',aiav:'#C2187A',java:'#2E9E6B',ptc:'#3A8CB5',anime:'#0FA4C4',biz:'#E8701A',interior:'#4D9E86',gprog:'#7E3FA0',gart:'#5B3FA8',ipas:'#E0A000',director:'#A16207',lang:'#16A34A'};
 const COMMON = new Set(['genai','aicore','aioffice']);
-function groupStar(g, rc){
-  const ids = [...GSET[g.id]].filter(id => !COMMON.has(id));
-  if(!ids.length) return false;
-  return rc.some(k => ids.filter(id => BYID[id].cat === k).length / ids.length >= 0.3);
+const firstDm = id => (DMS.find(d => d.ids.includes(id)) || {}).id || '';
+// 課程是從哪一份 DM 選的：同一門課只能在一份 DM 勾選，其他 DM 反灰
+const ownerOf = id => state.from[id] || firstDm(id);
+function setOwner(ids, dm){ ids.forEach(id => { state.from[id] = (dm && DMBYID[dm] && DMBYID[dm].ids.includes(id)) ? dm : firstDm(id); }); store.set('from', state.from); }
+function dmStar(d, rc){
+  const ids = d.ids.filter(id => !COMMON.has(id));
+  return ids.length && rc.some(k => ids.filter(id => BYID[id].cat === k).length / ids.length >= 0.3);
 }
 function inFilter(c){
   if(state.cat === 'all') return true;
-  if(state.dm) return PBYID[state.dm].ids.includes(c.id) && c.cat !== 'lang';
-  return GSET[state.cat] && GSET[state.cat].has(c.id);
+  const d = DMBYID[state.cat]; return d ? d.ids.includes(c.id) : true;
 }
 function renderCats(){
-  const all = [{id:'all', name:'全部', icon:'', c:'#0F172A'}, ...DMGROUPS];
-  const cnt = g => COURSES.filter(c => (g.id === 'all' || GSET[g.id].has(c.id)) && state.sel.has(c.id)).length;
-  let h = all.map(g => {
-    const n = cnt(g);
-    const rc = hRecCats().slice(0, 3);
-    const star = (!isAuto() && g.id !== 'all' && groupStar(g, rc)) ? '<span class="star">★</span>' : '';
-    return `<button class="chip ${state.cat===g.id?'on':''}" style="--cc:${g.c}" data-c="${g.id}">${star}${g.icon} ${esc(g.name)}${n?` <b>${n}</b>`:''}</button>`;
+  const rc = hRecCats().slice(0, 3);
+  const all = [{id:'all', name:'全部課程', ids:COURSES.map(c => c.id)}, ...DMS];
+  $('cats').innerHTML = all.map(d => {
+    const n = d.id === 'all' ? state.sel.size : [...state.sel].filter(id => ownerOf(id) === d.id).length;
+    const star = (!isAuto() && d.id !== 'all' && dmStar(d, rc)) ? '<span class="star">★</span>' : '';
+    return `<button class="chip ${state.cat===d.id?'on':''}" style="--cc:${DMCOLOR[d.id]||'#0F172A'}" data-c="${d.id}">${star}${esc(d.name)}${n?` <b>${n}</b>`:''}</button>`;
   }).join('');
-  const G = DMGROUPS.find(g => g.id === state.cat);
-  if(G && G.presets.length > 1){
-    h += `<div class="subchips"><span>DM：</span>` + [{id:'', name:'全部'}, ...G.presets.map(pid => ({id:pid, name:PBYID[pid].name}))].map(p =>
-      `<button class="chip sm ${state.dm===p.id?'on':''}" style="--cc:${G.c}" data-dm="${p.id}">${esc(p.name)}</button>`).join('') + `</div>`;
-  }
-  $('cats').innerHTML = h;
-  $('cats').querySelectorAll('.chip[data-c]').forEach(b => b.onclick = () => { state.cat = b.dataset.c; state.dm = ''; renderCats(); renderList(); });
-  $('cats').querySelectorAll('.chip[data-dm]').forEach(b => b.onclick = () => { state.dm = b.dataset.dm; renderCats(); renderList(); });
+  $('cats').querySelectorAll('.chip[data-c]').forEach(b => b.onclick = () => { state.cat = b.dataset.c; renderCats(); renderList(); });
 }
 function badges(c){
   let h = '';
@@ -644,24 +641,27 @@ function renderList(){
   for(let lv = 1; lv <= 4; lv++){
     const L = LV[lv-1], arr = items.filter(c => c.lv === lv);
     if(!arr.length) continue;
-    const n = arr.filter(c => state.sel.has(c.id)).length;
+    const n = arr.filter(c => state.sel.has(c.id) && (state.cat === 'all' || ownerOf(c.id) === state.cat)).length;
     h += `<div class="lvh" style="--lc:${LC[lv-1]}"><span class="no">LEVEL ${L.no}</span><span class="nm">${esc(L.name)}</span><span class="ct">${n}/${arr.length}</span></div>`;
     h += arr.map(c => { const k = CAT[c.cat]; return `
-      <label class="ci" style="--cc:${k.c}"><input type="checkbox" data-id="${c.id}" ${state.sel.has(c.id)?'checked':''}>
+      ${(() => { const on = state.sel.has(c.id), ow = on ? ownerOf(c.id) : '', lock = on && state.cat !== 'all' && ow !== state.cat; return `
+      <label class="ci ${lock?'lock':''}" style="--cc:${k.c}"><input type="checkbox" data-id="${c.id}" ${on?'checked':''} ${lock?'disabled':''}>
         <div><div class="t"><span class="dot">${k.icon} ${esc(k.name)}</span>${esc(c.name)}${badges(c)}</div>
+        ${lock ? `<div class="s own">已在「${esc(DMBYID[ow].name)}」選取，同一門課不能重複選</div>` : (on && state.cat === 'all' ? `<div class="s own2">選自「${esc((DMBYID[ow]||{name:'—'}).name)}」</div>` : '')}`; })()}
         <div class="s">${esc(c.tag||'')}</div>${c.certs&&c.certs.length?`<div class="s cert">📜 可考：${c.certs.map(esc).join('、')}</div>`:''}</div></label>`; }).join('');
   }
   $('list').innerHTML = h || '<div class="empty-list">找不到符合的課程</div>';
   $('list').querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => {
-    cb.checked ? state.sel.add(cb.dataset.id) : state.sel.delete(cb.dataset.id);
-    saveSel(); refreshCounts(); render();
+    const id = cb.dataset.id;
+    if(cb.checked){ state.sel.add(id); setOwner([id], state.cat); } else { state.sel.delete(id); delete state.from[id]; store.set('from', state.from); }
+    saveSel(); renderCats(); renderList(); render();
   });
 }
 function refreshCounts(){
   renderCats();
   document.querySelectorAll('.lvh').forEach(el => {
     let n = 0, t = 0, x = el.nextElementSibling;
-    while(x && x.classList.contains('ci')){ t++; if(x.querySelector('input').checked) n++; x = x.nextElementSibling; }
+    while(x && x.classList.contains('ci')){ t++; if(x.querySelector('input').checked && !x.classList.contains('lock')) n++; x = x.nextElementSibling; }
     el.querySelector('.ct').textContent = n+'/'+t;
   });
   $('selinfo').textContent = state.sel.size ? `已選 ${state.sel.size} 科` : '';
@@ -933,11 +933,11 @@ function render(){
 
 /* ---------- 事件 ---------- */
 $('q').addEventListener('input', e => { state.q = e.target.value.trim(); renderList(); });
-$('b_none').onclick = () => { state.sel.clear(); state.preset = ''; store.set('preset',''); saveSel(); renderCats(); renderList(); render(); };
+$('b_none').onclick = () => { state.sel.clear(); state.from = {}; store.set('from', {}); state.preset = ''; store.set('preset',''); saveSel(); renderCats(); renderList(); render(); };
 $('b_preset').onclick = () => {
   const p = PRESETS.find(p => p.id === $('f_preset').value); if(!p) return;
   if(state.sel.size && !confirm(`帶入「${p.name}」會取代目前勾選的 ${state.sel.size} 科，確定嗎？`)) return;
-  state.sel = new Set(p.ids); state.preset = p.id; store.set('preset', p.id);
+  state.sel = new Set(p.ids); state.from = {}; setOwner(p.ids, p.id); state.preset = p.id; store.set('preset', p.id);
   state.cat = 'all'; saveSel(); renderCats(); renderList(); render();
 };
 $('o_full').onchange = render;
