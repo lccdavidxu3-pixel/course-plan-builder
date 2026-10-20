@@ -312,6 +312,16 @@ function initForm(){
   const saved = store.get('form', {});
   KEEP.forEach(f => { if(saved[f] != null) $('f_'+f).value = saved[f]; });
   $('f_date').value = new Date().toISOString().slice(0,10);
+  // 選到有預設 LINE ID 的分校（中壢）時，自動填入 LINE ID 欄位
+  let autoLine = '';
+  const fillLine = () => {
+    const br = BRANCHES[+$('f_br').value], cur = $('f_line').value.trim();
+    const def = ($('f_br').value !== '' && br && br[4]) || '';
+    if(cur === '' || cur === autoLine){ $('f_line').value = def; autoLine = def; }
+  };
+  $('f_br').addEventListener('input', fillLine);
+  $('f_br').addEventListener('change', () => { fillLine(); render(); });
+  if($('f_br').value !== '') fillLine();
   FIELDS.forEach(f => $('f_'+f).addEventListener('input', () => {
     const o = {}; KEEP.forEach(k => o[k] = $('f_'+k).value); store.set('form', o); render();
   }));
