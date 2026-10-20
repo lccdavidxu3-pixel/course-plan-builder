@@ -40,6 +40,9 @@ button,input,select{font:inherit;color:inherit}
 .chip.on{background:var(--cc,#0F172A);border-color:var(--cc,#0F172A);color:#fff}
 .chip.on b{color:rgba(255,255,255,.8)}
 .chip.off{opacity:.45;text-decoration:line-through}
+.subchips{display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%;margin-top:4px;padding:6px 8px;background:#F8FAFC;border-radius:8px}
+.subchips span{font-size:11.5px;color:var(--ink3);font-weight:700}
+.chip.sm{padding:3px 9px;font-size:11.5px}
 .search{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin:8px 0}
 .lvh{display:flex;align-items:center;gap:8px;margin:12px 0 4px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--lc) 16%,#fff)}
 .lvh .no{font-size:11px;font-weight:900;color:#fff;background:var(--lc);border-radius:6px;padding:2px 6px}
@@ -316,7 +319,7 @@ button,input,select{font:inherit;color:inherit}
     </div>
     <div class="hint">帶入專班 DM 的主要科目，之後可以再自由增減。帶入會取代目前的勾選。</div>
 
-    <div class="sec-h">STEP 3 · 依類別與難度勾選單科</div>
+    <div class="sec-h">STEP 3 · 依 DM 分類與難度勾選單科</div>
     <div class="chips" id="cats"></div>
     <input class="search" id="q" placeholder="搜尋課程名稱、軟體或證照，例如 Python、Adobe、乙級">
     <div class="row"><button class="btn" id="b_none">清除全部勾選</button><span class="hint" id="selinfo" style="margin:0"></span></div>
@@ -550,7 +553,7 @@ const store = {
 };
 const state = {
   sel: new Set(store.get('sel', []).filter(id => BYID[id])),
-  cat: 'all', q: '', qr: null,
+  cat: 'all', dm: '', q: '', qr: null,
   hideTracks: new Set(store.get('hide', [])),
   preset: store.get('preset', ''),
 };
@@ -583,15 +586,41 @@ function matchQ(c){
   const hay = [c.name, c.tag, c.result, ...(c.certs||[]), ...c.mods.flatMap(m => [m.t, ...m.i])].join(' ').toLowerCase();
   return state.q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
 }
+/* ---------- DM 分類篩選 ---------- */
+const PBYID = Object.fromEntries(PRESETS.map(p => [p.id, p]));
+const GSET = {};
+DMGROUPS.forEach(g => {
+  GSET[g.id] = new Set(g.cat ? COURSES.filter(c => c.cat === g.cat).map(c => c.id)
+    : g.presets.flatMap(pid => PBYID[pid].ids).filter(id => BYID[id] && BYID[id].cat !== 'lang'));
+});
+const COMMON = new Set(['genai','aicore','aioffice']);
+function groupStar(g, rc){
+  const ids = [...GSET[g.id]].filter(id => !COMMON.has(id));
+  if(!ids.length) return false;
+  return rc.some(k => ids.filter(id => BYID[id].cat === k).length / ids.length >= 0.3);
+}
+function inFilter(c){
+  if(state.cat === 'all') return true;
+  if(state.dm) return PBYID[state.dm].ids.includes(c.id) && c.cat !== 'lang';
+  return GSET[state.cat] && GSET[state.cat].has(c.id);
+}
 function renderCats(){
-  const cnt = id => COURSES.filter(c => (id==='all' || c.cat===id) && state.sel.has(c.id)).length;
-  const all = [{id:'all', name:'全部', icon:'', c:'#0F172A'}, ...CATS];
-  $('cats').innerHTML = all.map(c => {
-    const n = cnt(c.id);
-    const star = !isAuto() && hRecCats().slice(0, 5).includes(c.id) ? '<span class="star">★</span>' : '';
-    return `<button class="chip ${state.cat===c.id?'on':''}" style="--cc:${c.c}" data-c="${c.id}">${star}${c.icon} ${esc(c.name)}${n?` <b>${n}</b>`:''}</button>`;
+  const all = [{id:'all', name:'全部', icon:'', c:'#0F172A'}, ...DMGROUPS];
+  const cnt = g => COURSES.filter(c => (g.id === 'all' || GSET[g.id].has(c.id)) && state.sel.has(c.id)).length;
+  let h = all.map(g => {
+    const n = cnt(g);
+    const rc = hRecCats().slice(0, 3);
+    const star = (!isAuto() && g.id !== 'all' && groupStar(g, rc)) ? '<span class="star">★</span>' : '';
+    return `<button class="chip ${state.cat===g.id?'on':''}" style="--cc:${g.c}" data-c="${g.id}">${star}${g.icon} ${esc(g.name)}${n?` <b>${n}</b>`:''}</button>`;
   }).join('');
-  $('cats').querySelectorAll('.chip').forEach(b => b.onclick = () => { state.cat = b.dataset.c; renderCats(); renderList(); });
+  const G = DMGROUPS.find(g => g.id === state.cat);
+  if(G && G.presets.length > 1){
+    h += `<div class="subchips"><span>DM：</span>` + [{id:'', name:'全部'}, ...G.presets.map(pid => ({id:pid, name:PBYID[pid].name}))].map(p =>
+      `<button class="chip sm ${state.dm===p.id?'on':''}" style="--cc:${G.c}" data-dm="${p.id}">${esc(p.name)}</button>`).join('') + `</div>`;
+  }
+  $('cats').innerHTML = h;
+  $('cats').querySelectorAll('.chip[data-c]').forEach(b => b.onclick = () => { state.cat = b.dataset.c; state.dm = ''; renderCats(); renderList(); });
+  $('cats').querySelectorAll('.chip[data-dm]').forEach(b => b.onclick = () => { state.dm = b.dataset.dm; renderCats(); renderList(); });
 }
 function badges(c){
   let h = '';
@@ -600,7 +629,7 @@ function badges(c){
   return h;
 }
 function renderList(){
-  const items = COURSES.filter(c => (state.cat==='all' || c.cat===state.cat) && matchQ(c));
+  const items = COURSES.filter(c => inFilter(c) && matchQ(c));
   let h = '';
   for(let lv = 1; lv <= 4; lv++){
     const L = LV[lv-1], arr = items.filter(c => c.lv === lv);
@@ -609,7 +638,7 @@ function renderList(){
     h += `<div class="lvh" style="--lc:${LC[lv-1]}"><span class="no">LEVEL ${L.no}</span><span class="nm">${esc(L.name)}</span><span class="ct">${n}/${arr.length}</span></div>`;
     h += arr.map(c => { const k = CAT[c.cat]; return `
       <label class="ci" style="--cc:${k.c}"><input type="checkbox" data-id="${c.id}" ${state.sel.has(c.id)?'checked':''}>
-        <div><div class="t">${state.cat==='all'?`<span class="dot">${k.icon} ${esc(k.name)}</span>`:''}${esc(c.name)}${badges(c)}</div>
+        <div><div class="t"><span class="dot">${k.icon} ${esc(k.name)}</span>${esc(c.name)}${badges(c)}</div>
         <div class="s">${esc(c.tag||'')}</div>${c.certs&&c.certs.length?`<div class="s cert">📜 可考：${c.certs.map(esc).join('、')}</div>`:''}</div></label>`; }).join('');
   }
   $('list').innerHTML = h || '<div class="empty-list">找不到符合的課程</div>';

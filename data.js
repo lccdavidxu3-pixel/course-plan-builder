@@ -380,3 +380,16 @@ const BRANCHES = [
   ['鳳山認證中心','07-710-3230','高雄市鳳山區光遠路 181 號'],
   ['屏東認證中心','08-732-5018','屏東縣屏東市中山路 25 號'],
 ];
+
+/* ---------------- 勾選介面的 DM 分類（同類型 DM 合為一組） ---------------- */
+const DMGROUPS = [
+  {id:'g_ai',    name:'AI 應用類',     icon:'🤖', c:'#0EA5E9', presets:['agent','skill','ai']},
+  {id:'g_code',  name:'程式／雲端類',  icon:'💻', c:'#6366F1', presets:['java','cloud']},
+  {id:'g_sec',   name:'資訊安全類',    icon:'🛡️', c:'#DC2626', presets:['sec']},
+  {id:'g_media', name:'影音／設計類',  icon:'🎨', c:'#DB2777', presets:['aiav','biz','anime']},
+  {id:'g_game',  name:'遊戲類',        icon:'🎮', c:'#7C3AED', presets:['gprog','gart']},
+  {id:'g_space', name:'室內設計類',    icon:'🏠', c:'#4D7C0F', presets:['interior','director']},
+  {id:'g_mech',  name:'工程製圖類',    icon:'📐', c:'#0F766E', presets:['ptc']},
+  {id:'g_ipas',  name:'iPAS 國家證照', icon:'🏛️', c:'#B45309', presets:['ipas']},
+  {id:'g_lang',  name:'外語',          icon:'🌏', c:'#16A34A', presets:[], cat:'lang'},
+];
