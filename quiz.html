@@ -779,7 +779,7 @@ function renderFront(){
       <div class="pn">${esc(planTitle(list, f))}</div>
       <div class="sl">AI 工具 × 專業技能 × 工作應用｜依目標與程度，由基礎到高階循序規劃</div>
       ${f.goal ? `<div class="goal">🎯 學習目標：${esc(f.goal)}</div>` : ''}
-      <div class="meta">${d?`<b>規劃日期</b>${d}<br>`:''}<b>規劃內容</b>${list.length} 科・${nMods} 個模組${nCert?`<br><b>可考證照</b>${nCert} 張`:''}</div>
+      <div class="meta">${d?`<b>規劃日期</b>${d}<br>`:''}<b>規劃內容</b>${nMods} 個課程單元${nCert?`<br><b>可考證照</b>${nCert} 張`:''}</div>
     </div>
     <div class="ov">
       <div>${pyramidSVG(counts, full)}<div class="cap">越往上，越能用 AI 主導完整專案</div></div>
