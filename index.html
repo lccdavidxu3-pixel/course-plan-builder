@@ -88,7 +88,7 @@ button,input,select{font:inherit;color:inherit}
 .goal{margin-top:2.5mm;display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:3mm;padding:1mm 3mm;font-size:8.5pt;position:relative;z-index:1}
 .cc{display:inline-block;font-size:calc(6.4pt*var(--k));font-weight:700;color:var(--cc);border:.25mm solid color-mix(in srgb,var(--cc) 45%,#fff);border-radius:1mm;padding:0 1.2mm;margin-right:1.2mm;vertical-align:1px;white-space:nowrap}
 .tgp{display:inline-block;font-size:calc(6.4pt*var(--k));font-weight:700;border-radius:1mm;padding:0 1.2mm;margin-left:1.2mm;vertical-align:1px;background:#FEF3C7;color:#B45309}
-.ft{display:grid;grid-template-columns:1fr auto;gap:4mm;align-items:center;background:#1E293B;color:#E2E8F0;padding:3.5mm 11mm;font-size:8pt;line-height:1.55}
+.ft{display:grid;grid-template-columns:1fr auto auto;gap:4mm;align-items:center;background:#1E293B;color:#E2E8F0;padding:3.5mm 11mm;font-size:8pt;line-height:1.55}
 .ft .br{font-size:10.5pt;font-weight:900;color:#fff}
 .ft .ad{opacity:.8}
 .ft .cn{margin-top:1mm}
@@ -98,6 +98,12 @@ button,input,select{font:inherit;color:inherit}
 .ft .qr img{width:19mm;height:19mm;image-rendering:pixelated;background:#fff;border-radius:1mm;padding:.8mm;object-fit:contain}
 .ft .qr div{font-size:8pt;text-align:right}
 .ft .lg{font-size:7pt;opacity:.6}
+.ft .fee{background:#fff;color:#0F172A;border-radius:2mm;padding:2mm 3.5mm;text-align:center;line-height:1.35;border-top:1.2mm solid var(--pc)}
+.ft .fee .fl{font-size:7.5pt;font-weight:700;color:#475569}
+.ft .fee .fv{font-size:13pt;font-weight:900;color:var(--pc)}
+.ft .fee .fv small{font-size:8pt;margin-right:.6mm}
+.ft .fee .fi{font-size:8pt;font-weight:700;margin-top:.6mm;padding-top:.6mm;border-top:1px dashed #CBD5E1}
+.ft .fee .fi b{color:#C8202B;font-size:10pt}
 
 /* ---------- 正面 ---------- */
 .ov{display:grid;grid-template-columns:64mm 1fr;gap:5mm;padding:4mm 11mm 1mm;align-items:center}
@@ -244,6 +250,9 @@ button,input,select{font:inherit;color:inherit}
       <div class="field"><label>顧問電話</label><input id="f_tel" placeholder="0912-345-678"></div>
       <div class="field"><label>LINE ID（選填）</label><input id="f_line"></div>
       <div class="field"><label>分校</label><select id="f_br"></select></div>
+      <div class="field"><label>課程費用（選填，顯示在正面頁尾）</label><input id="f_fee" inputmode="numeric" placeholder="例：120000"></div>
+      <div class="field"><label>分期期數（選填）</label><input id="f_inst" inputmode="numeric" placeholder="例：24"></div>
+      <div class="field"><label>每期金額（自動計算，可修改）</label><input id="f_per" inputmode="numeric" placeholder="輸入費用與期數後自動帶出"></div>
       <div class="field full"><label>顧問備註（選填，顯示在頁尾）</label><input id="f_note" placeholder="例：本月報名享早鳥優惠，名額有限"></div>
       <div class="field full"><label>QR Code 圖片（選填；中壢分校已內建 LINE QR，上傳會取代）</label><input id="f_qr" type="file" accept="image/*"></div>
     </div>
@@ -309,7 +318,9 @@ const saveSel = () => store.set('sel', [...state.sel]);
 const chosen = () => COURSES.filter(c => state.sel.has(c.id));
 
 /* ---------- 表單 ---------- */
-const FIELDS = ['name','date','goal','title','cons','tel','line','br','note'];
+const FIELDS = ['name','date','goal','title','cons','tel','line','br','note','fee','inst','per'];
+const num = s => +String(s || '').replace(/[^\d]/g, '') || 0;
+const money = n => n.toLocaleString('en-US');
 const KEEP = ['cons','tel','line','br'];
 function initForm(){
   $('f_br').innerHTML = '<option value="">（請選擇分校）</option>' + BRANCHES.map((b,i) => `<option value="${i}">${b[0]}　${b[1]}</option>`).join('');
@@ -327,6 +338,15 @@ function initForm(){
   $('f_br').addEventListener('input', fillLine);
   $('f_br').addEventListener('change', () => { fillLine(); render(); });
   if($('f_br').value !== '') fillLine();
+  // 每期金額 = 費用 ÷ 期數（無條件進位）；業務手動改過就不再覆蓋
+  let autoPer = '';
+  const fillPer = () => {
+    const fee = num($('f_fee').value), n = num($('f_inst').value), cur = $('f_per').value.trim();
+    const def = fee && n ? money(Math.ceil(fee / n)) : '';
+    if(cur === '' || cur === autoPer){ $('f_per').value = def; autoPer = def; }
+  };
+  $('f_fee').addEventListener('input', fillPer);
+  $('f_inst').addEventListener('input', fillPer);
   FIELDS.forEach(f => $('f_'+f).addEventListener('input', () => {
     const o = {}; KEEP.forEach(k => o[k] = $('f_'+k).value); store.set('form', o); render();
   }));
@@ -456,7 +476,7 @@ function planTitle(list, f){
   const names = Object.entries(m).sort((a,b) => b[1]-a[1]).slice(0,3).map(([k]) => CAT[k].name);
   return names.length ? names.join(' × ') + ' 專屬規劃' : '專屬課程規劃';
 }
-function footer(f){
+function footer(f, withFee){
   const br = f.br !== '' ? BRANCHES[+f.br] : null;
   const qr = state.qr || (br && br[3]) || '';   // 自行上傳的 QR 優先，否則用分校 LINE QR
   return `<div class="ft"><div>
@@ -465,7 +485,13 @@ function footer(f){
       ${(f.cons||f.tel||f.line) ? `<div class="cn">課程顧問 <b>${esc(f.cons)}</b>${f.tel?`　📱 ${esc(f.tel)}`:''}${f.line?`　LINE：${esc(f.line)}`:''}</div>` : ''}
       ${f.note ? `<div class="note">★ ${esc(f.note)}</div>` : ''}
       <div class="lg">課程內容依班級整體程度調整，詳細課綱以實際授課為準｜完整立案資訊詳見官網 www.lccnet.com.tw</div>
-    </div>${qr ? `<div class="qr"><div>掃描 QR 碼<br>${state.qr ? '免費諮詢' : '加入分校 LINE<br>免費諮詢'}</div><img src="${qr}" alt=""></div>` : ''}</div>`;
+    </div>${withFee ? feeBox(f) : '<div></div>'}${qr ? `<div class="qr"><div>掃描 QR 碼<br>${state.qr ? '免費諮詢' : '加入分校 LINE<br>免費諮詢'}</div><img src="${qr}" alt=""></div>` : ''}</div>`;
+}
+function feeBox(f){
+  const fee = num(f.fee), n = num(f.inst), per = num(f.per);
+  if(!fee && !(n && per)) return '<div></div>';
+  return `<div class="fee">${fee ? `<div class="fl">課程費用</div><div class="fv"><small>NT$</small>${money(fee)}</div>` : ''}
+    ${n && per ? `<div class="fi">分 ${n} 期・每期 <b>NT$ ${money(per)}</b></div>` : ''}</div>`;
 }
 const ccTag = c => { const k = CAT[c.cat]; return `<span class="cc" style="--cc:${k.c}">${k.icon} ${esc(k.name)}</span>`; };
 
@@ -535,7 +561,7 @@ function renderFront(){
       <div><b>JOB580 就業支持</b>8 項求職服務・產學媒合</div>
       <div><b>24hr 彈性進修</b>實體＋線上＋雲端</div>
     </div>
-    ${footer(f)}`;
+    ${footer(f, true)}`;
   fitFront(sheet);
 }
 function fitFront(sheet){
